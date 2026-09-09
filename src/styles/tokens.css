@@ -1,0 +1,887 @@
+/* ============================================================================
+   RADHA KELI KUNJ - DESIGN TOKENS & VIBRANT SPIRITUAL PALETTE
+   Agency-Grade Engineering Standards | Rich Devotional Aesthetics
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Rich Spiritual Palette */
+  --color-bg-base: #FFFDF9;              /* Luminous warm cream ground */
+  --color-bg-surface: #FFFFFF;           /* Solid white container plane */
+  --color-bg-subtle: #FDF4E7;            /* Radiant sandal & saffron wash */
+  --color-bg-gold-tint: #FEF9EE;         /* Pitambari tint */
+
+  /* Sacred Accents & Vibrancy */
+  --color-saffron-primary: #EA580C;      /* Vibrant Divine Saffron (Bhagwa) */
+  --color-saffron-deep: #C2410C;         /* Royal temple saffron */
+  --color-saffron-light: #FB923C;        /* Luminous sunset saffron */
+  --color-gold: #F59E0B;                 /* Pure Pitambari 24k Gold */
+  --color-gold-light: #FCD34D;           /* Bright radiant gold */
+  --color-gold-deep: #B45309;            /* Antique temple brass */
+  --color-marigold: #F97316;             /* Fresh holy marigold */
+  --color-sandalwood: #78350F;          /* Sacred chandan */
+
+  /* Midnight Shyam Navy Structure */
+  --color-navy-shyam: #090E1A;           /* Midnight Shyam nocturnal depth */
+  --color-navy-surface: #101827;         /* Elevated dark card surface */
+  --color-navy-card: #152238;            /* Rich deep sapphire */
+
+  /* Planar Hairline Borders */
+  --color-border-hairline: rgba(180, 83, 9, 0.14); /* Warm golden hairline */
+  --color-border-gold: rgba(245, 158, 11, 0.35);    /* Luminous gold border */
+  --color-border-saffron: rgba(234, 88, 12, 0.35);  /* Radiant saffron border */
+  --color-border-dark: rgba(255, 255, 255, 0.14);   /* Dark container border */
+
+  /* High-Contrast Typographic Inks */
+  --color-text-primary: #1C1917;         /* Deep warm charcoal/navy */
+  --color-text-muted: #57534E;           /* Balanced warm stone secondary */
+  --color-text-light: #78716C;           /* Subtle label ink */
+  --color-text-inverse: #FFFDF9;         /* Clean cream for dark zones */
+  --color-text-saffron: #EA580C;
+
+  /* Typography Families */
+  --font-serif: 'Cormorant Garamond', 'Noto Serif Devanagari', Georgia, serif;
+  --font-devanagari: 'Noto Serif Devanagari', 'Cormorant Garamond', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radii Constraints */
+  --radius-card: 6px;
+  --radius-pill: 9999px;
+
+  /* 8pt Spatial System */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  --max-width: 1360px;
+}
+
+/* Base Resets */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #FFFFFF;
+  color: #09090B;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Container Architecture */
+.site-container,
+.container-rigid {
+  width: 100%;
+  max-width: 1360px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .site-container,
+  .container-rigid {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  .hide-mobile, .nav-links-desktop {
+    display: none !important;
+  }
+}
+
+/* Vertical Section Spacing */
+.section-padding {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding-top: var(--space-10);
+    padding-bottom: var(--space-10);
+  }
+}
+
+/* Editorial Overline Section Label */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-saffron-primary);
+  margin-bottom: var(--space-3);
+  background: rgba(234, 88, 12, 0.08);
+  border: 1px solid rgba(234, 88, 12, 0.2);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.section-label .bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-saffron-primary);
+  box-shadow: 0 0 6px var(--color-saffron-primary);
+  display: inline-block;
+}
+
+/* Buttons - Vibrant Gradients & Shadows */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 46px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(234, 88, 12, 0.45);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 46px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid var(--color-gold);
+  color: var(--color-navy-shyam);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(180, 83, 9, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline:hover {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-saffron-primary);
+  color: var(--color-saffron-primary);
+  transform: translateY(-2px);
+}
+
+/* Badges */
+.badge-saffron {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background-color: #FFF4ED;
+  border: 1px solid #FDBA74;
+  color: var(--color-saffron-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #B45309;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Feature Cards with Golden Rim Lighting */
+.planar-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  padding: var(--space-6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  box-shadow: 0 4px 20px rgba(180, 83, 9, 0.06);
+}
+
+.planar-card:hover {
+  border-color: var(--color-saffron-primary);
+  box-shadow: 0 12px 36px rgba(234, 88, 12, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Radiant Shloka Callout Box */
+.shloka-box {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border-left: 4px solid var(--color-saffron-primary);
+  border-top: 1px solid #FDE68A;
+  border-right: 1px solid #FDE68A;
+  border-bottom: 1px solid #FDE68A;
+  border-radius: 4px;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-serif);
+  color: #78350F;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Audio Waveform Bars */
+@keyframes waveJump {
+  0%, 100% { height: 6px; }
+  50% { height: 24px; }
+}
+
+.wave-bar {
+  width: 3px;
+  background: linear-gradient(to top, #EA580C, #F59E0B);
+  border-radius: 2px;
+  animation: waveJump 1.2s ease-in-out infinite;
+}
+
+/* Schedule Table */
+.schedule-header-grid,
+.schedule-row-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .schedule-header-grid {
+    display: none !important;
+  }
+  .schedule-row-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-3) !important;
+    padding: var(--space-4) !important;
+  }
+}
+
+/* Custom Golden Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: #FDBA74;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EA580C;
+}
+
+/* ============================================================================
+   LIQUID GLASS DESIGN SYSTEM
+   Apple-grade fluid frosted glassmorphism, specular highlights & refractive sheen
+   ============================================================================ */
+
+/* Liquid Glass Floating Navbar */
+.liquid-navbar {
+  width: 100%;
+  max-width: 980px;
+  height: 58px;
+  margin: 16px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(254, 243, 199, 0.32) 100%);
+  backdrop-filter: blur(28px) saturate(210%) brightness(1.04);
+  -webkit-backdrop-filter: blur(28px) saturate(210%) brightness(1.04);
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 
+    0 16px 36px -8px rgba(124, 45, 18, 0.28),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 50;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-navbar:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 20px 42px -6px rgba(124, 45, 18, 0.32),
+    0 6px 16px rgba(0, 0, 0, 0.06),
+    inset 0 2px 1.5px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+@media (max-width: 768px) {
+  .liquid-navbar {
+    margin: 8px auto 0;
+    padding: 0 14px;
+    height: 52px;
+    border-radius: 20px;
+  }
+}
+
+/* Liquid Glass Nav Items */
+.liquid-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #78350F;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(124, 45, 18, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-nav-link:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #FFFFFF;
+  color: #C2410C;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(194, 65, 12, 0.2), inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* Liquid Glass Main Chat Sanctuary Container */
+.chat-sanctuary-container {
+  width: 100%;
+  max-width: 980px;
+  height: calc(100vh - 105px);
+  max-height: 860px;
+  margin: 12px auto 16px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.22) 50%, rgba(254, 243, 199, 0.3) 100%);
+  backdrop-filter: blur(32px) saturate(220%) brightness(1.03);
+  -webkit-backdrop-filter: blur(32px) saturate(220%) brightness(1.03);
+  border-radius: 26px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 
+    0 28px 68px -12px rgba(124, 45, 18, 0.35),
+    0 8px 24px -4px rgba(0, 0, 0, 0.08),
+    inset 0 2px 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.3),
+    0 0 35px rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 768px) {
+  .chat-sanctuary-container {
+    height: calc(100vh - 84px);
+    max-height: 100vh;
+    margin: 8px 0 0;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+  }
+}
+
+/* Liquid Glass Chat Header */
+.chat-sanctuary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.55) 0%, rgba(254, 243, 199, 0.4) 50%, rgba(255, 255, 255, 0.55) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.65);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(124, 45, 18, 0.04);
+}
+
+@media (max-width: 640px) {
+  .chat-sanctuary-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Chat Messages Scroll Container */
+.chat-messages-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 640px) {
+  .chat-messages-scroll {
+    padding: 16px 12px;
+    gap: 16px;
+  }
+}
+
+/* Liquid Glass User Message */
+.chat-msg-user {
+  align-self: flex-end;
+  max-width: 80%;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.88) 0%, rgba(180, 58, 8, 0.93) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #FFFFFF;
+  padding: 14px 18px;
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: 
+    0 8px 24px rgba(194, 65, 12, 0.32),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Liquid Glass Assistant / Maharaj Ji Message */
+.chat-msg-assistant {
+  align-self: flex-start;
+  max-width: 90%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.58) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px 20px 20px 4px;
+  padding: 20px;
+  box-shadow: 
+    0 12px 32px rgba(124, 45, 18, 0.1),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .chat-msg-user {
+    max-width: 92%;
+    font-size: 14px;
+  }
+  .chat-msg-assistant {
+    max-width: 98%;
+    padding: 16px;
+    font-size: 14px;
+  }
+}
+
+/* Pulsing Thinking Animation */
+@keyframes lotusGlow {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 10px #EA580C); }
+}
+
+.thinking-lotus {
+  animation: lotusGlow 1.8s ease-in-out infinite;
+}
+
+/* Liquid Glass Citation Card */
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(254, 243, 199, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #78350F;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(124, 45, 18, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.citation-chip:hover {
+  background: rgba(254, 243, 199, 0.9);
+  border-color: #F59E0B;
+  color: #9A3412;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* Liquid Glass Quick Question Buttons */
+.quick-question-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.35) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  color: #78350F;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 4px 14px rgba(124, 45, 18, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.quick-question-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 247, 237, 0.65) 100%);
+  border-color: rgba(255, 255, 255, 1);
+  color: #EA580C;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(234, 88, 12, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* Liquid Glass Sticky Input Bar */
+.chat-sanctuary-footer {
+  padding: 16px 20px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.3) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-sanctuary-input-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 8px 14px;
+  box-shadow: 
+    0 4px 16px rgba(124, 45, 18, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.chat-sanctuary-input-box:focus-within {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: #F59E0B;
+  box-shadow: 
+    0 6px 20px rgba(234, 88, 12, 0.18),
+    inset 0 1px 2px rgba(255, 255, 255, 1);
+/* ============================================================================
+   CULT UI DESIGN SYSTEM & TEXTURES
+   Exact recreation of cult-ui.com aesthetic: scanline striped & dotted text,
+   neon accents, crisp shadcn borders, and minimalist monochrome layout.
+   ============================================================================ */
+
+/* Top Neon Announcement Bar */
+.cult-announcement-bar {
+  width: 100%;
+  background-color: #BEF264; /* Vibrant Lime Neon from reference */
+  color: #1A2E05;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: background-color 0.2s ease;
+}
+
+.cult-announcement-bar:hover {
+  background-color: #A3E635;
+}
+
+.cult-announcement-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  border: 1px solid rgba(26, 46, 5, 0.4);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Cult UI Minimalist Header */
+.cult-header {
+  width: 100%;
+  background: #FFFFFF;
+  border-bottom: 1px solid #F4F4F5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.cult-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cult-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #52525B;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.cult-nav-item:hover {
+  color: #09090B;
+  background: #F4F4F5;
+}
+
+.cult-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  background: #BEF264;
+  color: #1A2E05;
+  padding: 1px 6px;
+  border-radius: 4px;
+  line-height: 1.3;
+}
+
+/* Cult UI Button Styles */
+.cult-btn-black {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #18181B;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.cult-btn-black:hover {
+  background: #09090B;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cult-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #FFFFFF;
+  color: #09090B;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  border: 1px solid #E4E4E7;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.cult-btn-outline:hover {
+  background: #FAFAFA;
+  border-color: #D4D4D8;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Cult UI Dual-Textured Typography */
+.cult-hero-headline {
+  font-family: var(--font-sans);
+  font-size: clamp(3.2rem, 8vw, 6.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: 0.35em;
+  margin-bottom: 20px;
+}
+
+/* Striped Scanlines Text Fill (as in "Shadcn,") */
+.cult-text-striped {
+  display: inline-block;
+  background: repeating-linear-gradient(
+    180deg,
+    #09090B 0px,
+    #09090B 2.2px,
+    transparent 2.2px,
+    transparent 5px
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  padding-right: 4px;
+}
+
+/* Halftone Dotted Matrix Text Fill (as in "expanded") */
+.cult-text-dotted {
+  display: inline-block;
+  background-image: radial-gradient(circle, #09090B 38%, transparent 38%);
+  background-size: 6px 6px;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* Tech Stack Badges */
+.cult-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #52525B;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+/* Highlighted Showcase Card */
+.cult-showcase-container {
+  width: 100%;
+  max-width: 1080px;
+  margin: 48px auto 60px;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 20px;
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.04);
+  padding: 32px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .cult-showcase-container {
+    padding: 16px;
+    margin: 32px auto 40px;
+    border-radius: 14px;
+  }
+}
+
+.cult-highlight-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #71717A;
+}
+
+.cult-highlight-tag .neon-pill {
+  background: #BEF264;
+  color: #1A2E05;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+
+

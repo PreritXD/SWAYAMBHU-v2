@@ -1,0 +1,64 @@
+# Environment & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Node / Vite
+node_modules/
+premanand-ji-website/node_modules/
+premanand-ji-website/dist/
+premanand-ji-website/.manus-logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Local databases & model weights cache
+data/
+*.sqlite
+*.sqlite3
+*.db
+models/
+
+# Scratch & temporary artifacts
+*.zip
+eval_report.json
+scratch*
+*.log
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
