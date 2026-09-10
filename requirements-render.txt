@@ -17,7 +17,7 @@ groq>=0.11.0
 openai>=1.50.0
 
 # Ultra-lightweight ONNX Embeddings (Paraphrase Multilingual MiniLM L12 v2)
-fastembed>=0.4.0
+fastembed==0.5.1
 numpy>=1.26.0
 
 # Transliteration & Text Processing

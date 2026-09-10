@@ -253,9 +253,11 @@ class EmbeddingGenerator:
 
             # 1. Try FastEmbed ONNX first (lightweight, ~100MB RAM, ideal for Render/Cloud Free Tiers)
             try:
+                os.environ.setdefault("OMP_NUM_THREADS", "1")
+                os.environ.setdefault("ONNXRUNTIME_NUM_THREADS", "1")
                 from fastembed import TextEmbedding
-                logger.info(f"Loading FastEmbed ONNX model: {self.model_name}")
-                self._model = TextEmbedding(model_name=self.model_name)
+                logger.info(f"Loading FastEmbed ONNX model: {self.model_name} (threads=1)")
+                self._model = TextEmbedding(model_name=self.model_name, threads=1)
                 self._is_fastembed = True
                 return
             except Exception as fe_err:
