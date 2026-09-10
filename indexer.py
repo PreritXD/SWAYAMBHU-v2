@@ -250,6 +250,19 @@ class EmbeddingGenerator:
             ):
                 self._model = "fallback"
                 return
+
+            # 1. Try FastEmbed ONNX first (lightweight, ~100MB RAM, ideal for Render/Cloud Free Tiers)
+            try:
+                from fastembed import TextEmbedding
+                logger.info(f"Loading FastEmbed ONNX model: {self.model_name}")
+                self._model = TextEmbedding(model_name=self.model_name)
+                self._is_fastembed = True
+                return
+            except Exception as fe_err:
+                self._is_fastembed = False
+                logger.debug(f"FastEmbed not available ({fe_err}), falling back to SentenceTransformer.")
+
+            # 2. Standard SentenceTransformer fallback (used locally / on GPU)
             try:
                 import torch
                 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -271,7 +284,10 @@ class EmbeddingGenerator:
             return []
         self._load_model()
 
-        if self._model != "fallback":
+        if getattr(self, "_is_fastembed", False):
+            embeddings = list(self._model.embed(texts))
+            return [emb.tolist() for emb in embeddings]
+        elif self._model != "fallback":
             embeddings = self._model.encode(
                 texts,
                 batch_size=64,

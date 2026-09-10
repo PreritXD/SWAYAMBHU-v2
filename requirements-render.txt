@@ -1,0 +1,28 @@
+# ============================================================================
+# SWAYAMBHU v2 - Lightweight Production API Requirements for Render Free Tier
+# RAM Footprint: < 140MB (Zero PyTorch, Zero CUDA, Zero Whisper overhead)
+# ============================================================================
+
+# Core API & Web Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+python-dotenv>=1.0.1
+httpx>=0.27.0
+requests>=2.32.0
+
+# Free-Tier LLM Providers
+groq>=0.11.0
+openai>=1.50.0
+
+# Ultra-lightweight ONNX Embeddings (Paraphrase Multilingual MiniLM L12 v2)
+fastembed>=0.4.0
+numpy>=1.26.0
+
+# Transliteration & Text Processing
+indic-transliteration>=2.3.54
+rich>=13.8.0
+
+# Database
+supabase>=2.8.0
