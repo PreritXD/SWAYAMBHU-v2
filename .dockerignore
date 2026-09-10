@@ -1,0 +1,13 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+node_modules
+premanand-ji-website/node_modules
+premanand-ji-website/.manus-logs
+swayambhu_colab_package.zip
+*.ipynb
+eval/
+tests/

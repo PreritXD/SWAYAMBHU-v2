@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: swayambhu-v2
+    runtime: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: "cd premanand-ji-website && npm install && npm run build && cd .. && pip install -r requirements-render.txt"
+    startCommand: "uvicorn server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: VECTOR_STORE_BACKEND
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
