@@ -154,12 +154,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.app_name} [Environment: {settings.app_env.value}]")
     logger.info(f"Vector Store Backend: {settings.vector_store_backend.value}")
     rag_engine = RAGEngine()
-    try:
-        logger.info("Pre-warming embedding model on startup...")
-        rag_engine.embedding_generator.embed_query("राधा नाम")
-        logger.info("Embedding model pre-warmed and ready.")
-    except Exception as e:
-        logger.warning(f"Model pre-warm warning: {e}")
+    logger.info("RAG Engine initialized. Model weights are lazy-loaded on demand to conserve RAM.")
     yield
     logger.info("Shutting down SWAYAMBHU v2 backend.")
 

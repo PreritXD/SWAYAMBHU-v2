@@ -239,6 +239,38 @@ class EmbeddingGenerator:
     def __init__(self, model_name: Optional[str] = None):
         self.model_name = model_name or settings.embedding_model_name
         self._model = None
+        self._hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
+
+    def _embed_via_hf_api(self, texts: List[str]) -> Optional[List[List[float]]]:
+        token = getattr(self, "_hf_token", None) or os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
+        if not token:
+            return None
+        try:
+            import requests
+            headers = {"Authorization": f"Bearer {token}"}
+            for url in [
+                f"https://router.huggingface.co/hf-inference/models/{self.model_name}",
+                f"https://api-inference.huggingface.co/pipeline/feature-extraction/{self.model_name}",
+            ]:
+                try:
+                    resp = requests.post(
+                        url,
+                        headers=headers,
+                        json={"inputs": texts, "options": {"wait_for_model": True}},
+                        timeout=12,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if isinstance(data, list) and len(data) > 0:
+                            if isinstance(data[0], list):
+                                return data
+                            elif isinstance(data[0], (int, float)):
+                                return [data]
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.warning(f"HF Inference API error ({e}).")
+        return None
 
     def _load_model(self):
         if self._model is None:
@@ -251,14 +283,25 @@ class EmbeddingGenerator:
                 self._model = "fallback"
                 return
 
-            # 1. Try FastEmbed ONNX first (lightweight, ~100MB RAM, ideal for Render/Cloud Free Tiers)
+            # 0. Check if Hugging Face Inference API is available (Zero local RAM overhead)
+            token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
+            if token:
+                self._hf_token = token
+                self._model = "hf_api"
+                logger.info(f"Configured Hugging Face Serverless Inference API for {self.model_name} (Zero local RAM).")
+                return
+
+            # 1. Try FastEmbed ONNX (quantized, lightweight, single-thread)
             try:
+                import gc
                 os.environ.setdefault("OMP_NUM_THREADS", "1")
                 os.environ.setdefault("ONNXRUNTIME_NUM_THREADS", "1")
+                os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")
                 from fastembed import TextEmbedding
                 logger.info(f"Loading FastEmbed ONNX model: {self.model_name} (threads=1)")
                 self._model = TextEmbedding(model_name=self.model_name, threads=1)
                 self._is_fastembed = True
+                gc.collect()
                 return
             except Exception as fe_err:
                 self._is_fastembed = False
@@ -285,6 +328,22 @@ class EmbeddingGenerator:
         if not texts:
             return []
         self._load_model()
+
+        if self._model == "hf_api":
+            hf_res = self._embed_via_hf_api(texts)
+            if hf_res is not None:
+                return hf_res
+            logger.warning("HF API request failed, attempting local FastEmbed fallback.")
+            try:
+                import gc
+                os.environ.setdefault("OMP_NUM_THREADS", "1")
+                os.environ.setdefault("ONNXRUNTIME_NUM_THREADS", "1")
+                from fastembed import TextEmbedding
+                self._model = TextEmbedding(model_name=self.model_name, threads=1)
+                self._is_fastembed = True
+                gc.collect()
+            except Exception:
+                self._model = "fallback"
 
         if getattr(self, "_is_fastembed", False):
             embeddings = list(self._model.embed(texts))
