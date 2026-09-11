@@ -1,8 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "buildCommand": "vite build",
-  "outputDirectory": "dist/public",
+  "buildCommand": "cd premanand-ji-website && npm install && npx vite build",
+  "outputDirectory": "premanand-ji-website/dist/public",
   "rewrites": [
     {
       "source": "/api/:path*",
