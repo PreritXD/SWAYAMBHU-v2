@@ -298,8 +298,9 @@ class EmbeddingGenerator:
                 os.environ.setdefault("ONNXRUNTIME_NUM_THREADS", "1")
                 os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")
                 from fastembed import TextEmbedding
-                logger.info(f"Loading FastEmbed ONNX model: {self.model_name} (threads=1)")
-                self._model = TextEmbedding(model_name=self.model_name, threads=1)
+                cache_dir = os.path.join(os.path.dirname(__file__), "data", "models_cache")
+                logger.info(f"Loading FastEmbed ONNX model: {self.model_name} from {cache_dir} (threads=1)")
+                self._model = TextEmbedding(model_name=self.model_name, cache_dir=cache_dir, threads=1)
                 self._is_fastembed = True
                 gc.collect()
                 return
@@ -339,7 +340,8 @@ class EmbeddingGenerator:
                 os.environ.setdefault("OMP_NUM_THREADS", "1")
                 os.environ.setdefault("ONNXRUNTIME_NUM_THREADS", "1")
                 from fastembed import TextEmbedding
-                self._model = TextEmbedding(model_name=self.model_name, threads=1)
+                cache_dir = os.path.join(os.path.dirname(__file__), "data", "models_cache")
+                self._model = TextEmbedding(model_name=self.model_name, cache_dir=cache_dir, threads=1)
                 self._is_fastembed = True
                 gc.collect()
             except Exception:

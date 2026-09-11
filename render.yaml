@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: "cd premanand-ji-website && npm install && npm run build && cd .. && pip install -r requirements-render.txt && python -c \"from fastembed import TextEmbedding; TextEmbedding('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', threads=1)\""
+    buildCommand: "pip install -r requirements-render.txt && python -c \"import os; os.makedirs('./data/models_cache', exist_ok=True); from fastembed import TextEmbedding; TextEmbedding('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', cache_dir='./data/models_cache', threads=1)\""
     startCommand: "uvicorn server:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: APP_ENV
