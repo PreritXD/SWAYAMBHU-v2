@@ -60,6 +60,7 @@
   --chart-3: #f1c88d;
   --chart-4: #24201a;
   --chart-5: #b39a78;
+  --font-serif: "Instrument Serif", Garamond, Georgia, serif;
   --font-serif-devanagari: "Rozha One", "Tiro Devanagari Hindi", "Noto Serif Devanagari", Georgia, serif;
   --font-reading-devanagari: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
   --font-grotesk: "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif;
@@ -179,9 +180,9 @@ h1 { color: #f8ead6; font-size: clamp(3.8rem, 8.3vw, 8.4rem); font-weight: 600; 
 .hero-title-line { display: block; }
 .title-italic {
   color: #dc8e3c;
-  font-family: "EB Garamond", Garamond, Georgia, serif;
+  font-family: "Instrument Serif", Garamond, Georgia, serif;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.02em;
   padding-left: 7.2vw;
 }
