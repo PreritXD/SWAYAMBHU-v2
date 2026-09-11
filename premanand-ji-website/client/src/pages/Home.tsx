@@ -14,11 +14,13 @@ import {
   X,
 } from "lucide-react";
 import SatsangChat from "@/components/SatsangChat";
+import { LoopingWords } from "@/components/ui/looping-words-with-gsap";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const navItems = [
   { label: "Darshan", target: "darshan" },
+  { label: "Naam Japa", target: "japa" },
   { label: "Teachings", target: "teachings" },
   { label: "Ashram", target: "ashram" },
   { label: "Chat", target: "chat" },
@@ -273,9 +275,40 @@ export default function Home() {
             </div>
             <div className="darshan-note">
               <p>In the middle of a hurried world, this is a small clearing. Move slowly. Read a line. Let it meet you where you are.</p>
-              <button className="text-link" onClick={() => scrollTo("teachings")}>
-                Explore the teachings <ArrowUpRight size={15} />
+              <button className="text-link" onClick={() => scrollTo("japa")}>
+                Experience Naam Japa <ArrowUpRight size={15} />
               </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="japa" className="japa-section section-dark reveal">
+          <div className="japa-ambient-glow" />
+          <div className="japa-container">
+            <div className="japa-eyebrow eyebrow">
+              <Sparkles size={13} fill="currentColor" />
+              <span>अखंड नाम जप · Akhand Naam Japa</span>
+            </div>
+            <h2>
+              श्वास-श्वास में<br />
+              <span>श्री राधा।</span>
+            </h2>
+            <p className="japa-subtext">
+              “जब मन विचलित हो, तो सब छोड़कर केवल एक नाम का आश्रय ले लो। राधा नाम ही हर श्वास का विश्राम है।”
+            </p>
+
+            <div className="japa-interactive-stage">
+              <LoopingWords words={["राधा"]} className="japa-cloneable" hideCredits={false} />
+            </div>
+
+            <div className="japa-footer">
+              <div className="japa-mantra-badge">
+                <span className="japa-dot" />
+                <span className="japa-mantra-text">निरंतर नाम संकीर्तन</span>
+              </div>
+              <p className="japa-guidance">
+                Close your eyes for three breaths. Let the rhythm of the sacred name settle the restless mind.
+              </p>
             </div>
           </div>
         </section>

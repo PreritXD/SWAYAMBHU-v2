@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@400;500;600;700;800&family=Yatra+One&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -62,6 +63,8 @@
   --chart-5: #b39a78;
   --font-serif: "Instrument Serif", Garamond, Georgia, serif;
   --font-serif-devanagari: "Rozha One", "Tiro Devanagari Hindi", "Noto Serif Devanagari", Georgia, serif;
+  --font-anek-devanagari: "Anek Devanagari", sans-serif;
+  --font-yatra: "Yatra One", cursive, sans-serif;
   --font-reading-devanagari: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
   --font-grotesk: "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif;
   --font-body: "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, "DM Sans", sans-serif;
@@ -223,6 +226,181 @@ h1 { color: #f8ead6; font-size: clamp(3.8rem, 8.3vw, 8.4rem); font-weight: 600; 
 .darshan-note { align-self: end; color: #6f5d4b; font-size: 14px; line-height: 1.75; max-width: 230px; padding-bottom: 2px; }
 .text-link { align-items: center; background: none; border-bottom: 1px solid #bc652e; color: #a54e24; cursor: pointer; display: inline-flex; font-size: 11px; gap: 10px; letter-spacing: .05em; margin-top: 29px; padding: 0 0 7px; }
 
+/* ==========================================================================
+   Akhand Naam Japa Section (राधा)
+   ========================================================================== */
+.japa-section {
+  position: relative;
+  background: #18130e;
+  color: #f4eadb;
+  padding: 120px 10.5vw 130px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-top: 1px solid rgba(229, 154, 61, 0.15);
+  border-bottom: 1px solid rgba(229, 154, 61, 0.15);
+}
+
+.japa-ambient-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(800px, 90vw);
+  height: 450px;
+  background: radial-gradient(circle, rgba(229, 154, 61, 0.14) 0%, rgba(210, 97, 24, 0.05) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(40px);
+}
+
+.japa-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.japa-eyebrow {
+  color: #e59a3d;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.japa-section h2 {
+  font-size: clamp(2.8rem, 5.8vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+  color: #f8eddb;
+  margin: 0 0 20px;
+}
+
+.japa-section h2 span {
+  color: #e59a3d;
+  font-family: var(--font-serif-devanagari), "Rozha One", serif;
+  font-style: italic;
+}
+
+.japa-subtext {
+  font-family: "Noto Serif Devanagari", Georgia, serif;
+  font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+  line-height: 1.7;
+  color: #cbb8a2;
+  max-width: 620px;
+  margin: 0 auto 36px;
+}
+
+.japa-interactive-stage {
+  width: 100%;
+  max-width: 680px;
+  margin: 10px auto 30px;
+  position: relative;
+  background: rgba(28, 22, 17, 0.6);
+  border: 1px solid rgba(229, 154, 61, 0.22);
+  border-radius: 1.25rem;
+  padding: 24px 20px 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.japa-cloneable {
+  min-height: 240px !important;
+  height: 240px !important;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+.japa-cloneable .looping-words {
+  height: 200px;
+}
+
+.japa-cloneable .looping-words__containers {
+  height: 200px;
+}
+
+.japa-cloneable .looping-words__fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(24, 19, 14, 0.95) 0%,
+    rgba(24, 19, 14, 0.7) 18%,
+    transparent 38%,
+    transparent 62%,
+    rgba(24, 19, 14, 0.7) 82%,
+    rgba(24, 19, 14, 0.95) 100%
+  ) !important;
+}
+
+.japa-cloneable .looping-words__p {
+  font-family: "Anek Devanagari", var(--font-anek-devanagari), sans-serif !important;
+  color: #f7ede1 !important;
+  text-shadow: 0 0 28px rgba(229, 154, 61, 0.4);
+}
+
+.japa-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.japa-mantra-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  background: rgba(229, 154, 61, 0.14);
+  border: 1px solid rgba(229, 154, 61, 0.45);
+  border-radius: 9999px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.japa-mantra-text {
+  font-family: "Yatra One", var(--font-yatra), cursive, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: #fff1dc;
+  text-shadow: 0 2px 10px rgba(229, 154, 61, 0.35), 0 1px 2px rgba(0, 0, 0, 0.8);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.japa-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e59a3d;
+  box-shadow: 0 0 8px #e59a3d;
+  animation: japaPulse 2.4s infinite ease-in-out;
+}
+
+@keyframes japaPulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 14px #f5a842; }
+}
+
+.japa-guidance {
+  color: #9f8972;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  max-width: 440px;
+  line-height: 1.6;
+  margin: 0;
+}
+
 .teachings-section { background: #e7dbc9; color: #251b13; padding: 132px 10.5vw 156px; }
 .section-heading { align-items: end; display: flex; justify-content: space-between; }
 .heading-aside { color: #88715c; font-size: 13px; line-height: 1.7; max-width: 205px; padding-bottom: 4px; }
@@ -283,8 +461,7 @@ h1 { color: #f8ead6; font-size: clamp(3.8rem, 8.3vw, 8.4rem); font-weight: 600; 
   .hero-visual { height: 57%; right: -16%; top: 34%; width: 83%; }
   .note-top { right: 15%; top: 13%; }
   .note-bottom { left: 9%; }
-  .hero-footer-line { left: 7vw; right: 7vw; }
-  .darshan-section, .teachings-section, .read-section { padding-left: 7vw; padding-right: 7vw; }
+  .darshan-section, .japa-section, .teachings-section, .read-section { padding-left: 7vw; padding-right: 7vw; }
   .ashram-section { padding-left: 7vw; padding-right: 7vw; }
 }
 
@@ -1418,4 +1595,162 @@ h1 { color: #f8ead6; font-size: clamp(3.8rem, 8.3vw, 8.4rem); font-weight: 600; 
     font-size: 9.5px;
   }
 }
+
+/* ============================================================================
+   Osmo Looping Words with GSAP Styles
+   ============================================================================ */
+.cloneable {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--background, #17130f);
+}
+
+.looping-words {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 240px;
+}
+
+.looping-words__containers {
+  position: relative;
+  overflow: hidden;
+  height: 240px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.looping-words__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+li.looping-words__list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  width: 100%;
+}
+
+.looping-words__p {
+  margin: 0;
+  padding: 0 16px;
+  font-family: "Anek Devanagari", var(--font-anek-devanagari), sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  font-weight: 700;
+  line-height: 80px;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--foreground, #f4eadb);
+}
+
+.looping-words__fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--background) 0%,
+    color-mix(in srgb, var(--background) 85%, transparent) 20%,
+    transparent 38%,
+    transparent 62%,
+    color-mix(in srgb, var(--background) 85%, transparent) 80%,
+    var(--background) 100%
+  );
+  z-index: 2;
+}
+
+.looping-words__selector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80px;
+  min-width: 120px;
+  pointer-events: none;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.looping-words__edge {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  top: 0;
+  left: 0;
+  border-top: 2px solid var(--primary, #e59a3d);
+  border-left: 2px solid var(--primary, #e59a3d);
+}
+
+.looping-words__edge.is--2 {
+  left: auto;
+  right: 0;
+  border-left: none;
+  border-right: 2px solid var(--primary, #e59a3d);
+}
+
+.looping-words__edge.is--3 {
+  top: auto;
+  bottom: 0;
+  left: auto;
+  right: 0;
+  border-top: none;
+  border-left: none;
+  border-bottom: 2px solid var(--primary, #e59a3d);
+  border-right: 2px solid var(--primary, #e59a3d);
+}
+
+.looping-words__edge.is--4 {
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  border-top: none;
+  border-right: none;
+  border-bottom: 2px solid var(--primary, #e59a3d);
+  border-left: 2px solid var(--primary, #e59a3d);
+}
+
+.osmo-credits {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 5;
+}
+
+.osmo-credits__p {
+  font-size: 11px;
+  color: rgba(244, 234, 219, 0.45);
+  margin: 0;
+}
+
+.osmo-credits__p-a {
+  color: var(--primary, #e59a3d);
+  text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+
+.osmo-credits__p-a:hover {
+  opacity: 0.8;
+}
+
 
