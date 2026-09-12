@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import SatsangChat from "@/components/SatsangChat";
 import { LoopingWords } from "@/components/ui/looping-words-with-gsap";
+import DivineLotus3D from "@/components/3d/DivineLotus3D";
+import SacredMala3D from "@/components/3d/SacredMala3D";
+import AmbientCosmos3D from "@/components/3d/AmbientCosmos3D";
+import ScrollProgressBar from "@/components/3d/ScrollProgressBar";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -100,6 +104,40 @@ export default function Home() {
         ease: "sine.inOut",
       });
 
+      // Parallax scroll on hero elements
+      gsap.to(".hero-content", {
+        yPercent: -14,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+      gsap.to(".hero-visual", {
+        yPercent: -8,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+      gsap.to(".hero-orbit", {
+        scale: 1.12,
+        rotate: 15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // Subtle reveal for elements with .reveal
       gsap.utils.toArray<HTMLElement>(".reveal").forEach((element) => {
         gsap.fromTo(
           element,
@@ -111,23 +149,54 @@ export default function Home() {
             ease: "power3.out",
             scrollTrigger: {
               trigger: element,
-              start: "top 84%",
+              start: "top 85%",
               once: true,
             },
           },
         );
       });
 
+      // Special reveal for Darshan quote
+      gsap.fromTo(
+        ".darshan-quote",
+        { opacity: 0, x: -24 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".darshan-quote",
+            start: "top 82%",
+            once: true,
+          },
+        }
+      );
+
+      // Mouse-driven tilt on cards with .tilt-3d
+      const tiltCards = document.querySelectorAll<HTMLElement>(".tilt-3d");
+      const cleanups: (() => void)[] = [];
+      tiltCards.forEach((card) => {
+        const handleCardMove = (e: MouseEvent) => {
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+          const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+          card.style.transform = `perspective(1000px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg) translateY(-4px)`;
+        };
+        const handleCardLeave = () => {
+          card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+        };
+        card.addEventListener("mousemove", handleCardMove);
+        card.addEventListener("mouseleave", handleCardLeave);
+        cleanups.push(() => {
+          card.removeEventListener("mousemove", handleCardMove);
+          card.removeEventListener("mouseleave", handleCardLeave);
+        });
+      });
+
       const onMove = (event: MouseEvent) => {
         const x = (event.clientX / window.innerWidth - 0.5) * 2;
         const y = (event.clientY / window.innerHeight - 0.5) * 2;
-        gsap.to(".hero-art", {
-          rotationY: x * 4,
-          rotationX: y * -3,
-          duration: 1.2,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
         gsap.to(".hero-glow", {
           x: x * 10,
           y: y * 8,
@@ -138,14 +207,20 @@ export default function Home() {
       };
 
       window.addEventListener("mousemove", onMove);
-      return () => window.removeEventListener("mousemove", onMove);
+      return () => {
+        window.removeEventListener("mousemove", onMove);
+        cleanups.forEach((c) => c());
+      };
     }, root);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <div ref={root} className="site-shell">
+    <div ref={root} className="site-shell relative">
+      <ScrollProgressBar />
+      <AmbientCosmos3D />
+
       <header className="site-header">
         <a className="brand-mark" href="#top" aria-label="Premanand Ji Maharaj home">
           <span className="brand-dot" />
@@ -233,18 +308,14 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="A luminous saffron lotus illustration">
+          <div className="hero-visual" aria-label="A luminous saffron 3D lotus">
             <div className="hero-side-note note-top">
               <span className="note-index">01</span>
               <span>naam · seva · prem</span>
             </div>
             <div className="hero-art-wrap">
               <div className="hero-art-shadow" />
-              <img
-                className="hero-art"
-                src="/hero-lotus.png"
-                alt="A luminous saffron lotus"
-              />
+              <DivineLotus3D className="hero-art-3d" />
               <div className="hero-art-caption">मन को घर लौटने दो</div>
             </div>
             <div className="hero-side-note note-bottom">
@@ -297,8 +368,9 @@ export default function Home() {
               “जब मन विचलित हो, तो सब छोड़कर केवल एक नाम का आश्रय ले लो। राधा नाम ही हर श्वास का विश्राम है।”
             </p>
 
-            <div className="japa-interactive-stage">
-              <LoopingWords words={["राधा"]} className="japa-cloneable" hideCredits={false} />
+            <div className="japa-interactive-stage relative">
+              <SacredMala3D className="japa-mala-3d" />
+              <LoopingWords words={["राधा"]} className="japa-cloneable relative z-10" hideCredits={false} />
             </div>
 
             <div className="japa-footer">
@@ -323,7 +395,7 @@ export default function Home() {
           </div>
           <div className="teaching-list">
             {teachings.map((teaching) => (
-              <article className="teaching-card reveal" key={teaching.number}>
+              <article className="teaching-card reveal tilt-3d" key={teaching.number}>
                 <div className="card-topline">
                   <span>{teaching.number}</span>
                   <span className="card-tag">{teaching.tag}</span>
@@ -362,7 +434,7 @@ export default function Home() {
         </section>
 
         <section id="read" className="read-section section-light">
-          <div className="read-card reveal">
+          <div className="read-card reveal tilt-3d">
             <div className="read-card-ornament">✳</div>
             <p className="eyebrow dark-eyebrow">A verse for today</p>
             <h2>“Keep the name<br /><em>close to your breath.”</em></h2>

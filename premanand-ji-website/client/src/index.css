@@ -202,6 +202,42 @@ h1 { color: #f8ead6; font-size: clamp(3.8rem, 8.3vw, 8.4rem); font-weight: 600; 
 .hero-art { filter: drop-shadow(0 20px 45px rgba(224, 108, 31, .38)); max-height: 85%; max-width: 89%; object-fit: contain; position: relative; transform-style: preserve-3d; width: 89%; z-index: 2; }
 .hero-art-shadow { background: rgba(211, 103, 25, .22); border-radius: 50%; bottom: 13%; filter: blur(30px); height: 9%; position: absolute; width: 48%; }
 .hero-art-caption { bottom: 9%; color: rgba(227, 171, 104, .55); font-family: "Noto Serif Devanagari", serif; font-size: 13px; letter-spacing: .1em; position: absolute; right: 10%; transform: rotate(-9deg); }
+.hero-art-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-art-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  filter: drop-shadow(0 25px 55px rgba(224, 108, 31, .42));
+}
+
+.japa-mala-3d {
+  position: absolute;
+  inset: -60px -40px;
+  pointer-events: none;
+  z-index: 1;
+}
+.japa-mala-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+  will-change: transform;
+}
+.tilt-3d:hover {
+  box-shadow: 0 16px 40px rgba(60, 35, 15, 0.12);
+}
 .hero-side-note { align-items: center; color: #9f8970; display: flex; font-size: 9px; gap: 10px; letter-spacing: .14em; position: absolute; text-transform: uppercase; z-index: 3; }
 .note-top { right: 9%; top: 17%; }
 .note-bottom { bottom: 12%; left: 3%; }
