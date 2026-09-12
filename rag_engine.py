@@ -646,11 +646,11 @@ class LLMProviderChain:
                     "maxOutputTokens": max_tokens,
                 }
             }
-            candidate_models = [model] if model else [settings.google_gemma_model, "gemma-4-26b-a4b-it", "gemini-flash-latest", "gemini-3.5-flash"]
+            candidate_models = [model] if model else ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"]
             seen = set()
             models_to_try = [m for m in candidate_models if m and not (m in seen or seen.add(m))]
 
-            with httpx.Client(timeout=25.0) as client:
+            with httpx.Client(timeout=18.0) as client:
                 for model_name in models_to_try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={g_key}"
                     try:
@@ -678,7 +678,7 @@ class LLMProviderChain:
         messages: List[Dict[str, str]],
         model: Optional[str] = None,
         temperature: float = 0.2,
-        max_tokens: int = 1200,
+        max_tokens: int = 950,
     ) -> Optional[Tuple[str, str, str]]:
         """Call Groq free tier with rate-limit resilient model fallback."""
         if not self.groq_api_key:
@@ -686,7 +686,9 @@ class LLMProviderChain:
         try:
             from groq import Groq
             client = Groq(api_key=self.groq_api_key, max_retries=0)
-            candidate_models = [model] if model else [settings.primary_llm_model, "groq/compound", "qwen/qwen3.8-27b", "groq/compound-mini"]
+            # Enforce Groq free-tier output token ceiling to prevent 429 OTPM errors
+            effective_tokens = min(max_tokens, 950)
+            candidate_models = [model] if model else ["qwen/qwen3.8-27b", "openai/gpt-oss-20b", "qwen/qwen3.6-27b", "groq/compound-mini"]
             seen = set()
             models_to_try = [m for m in candidate_models if m and not (m in seen or seen.add(m))]
 
@@ -696,7 +698,7 @@ class LLMProviderChain:
                         model=m,
                         messages=messages,
                         temperature=temperature,
-                        max_tokens=max_tokens,
+                        max_tokens=effective_tokens,
                     )
                     content = resp.choices[0].message.content or ""
                     if content.strip():
@@ -994,10 +996,10 @@ class SatsangCouncil:
             {"role": "user", "content": audit_prompt}
         ]
 
-        # Stage 2 Auditor: prioritize Google Gemma / Gemini Flash for huge context and fast audit
-        audit_res = self.llm_chain.complete_google_gemma(audit_msgs, model="gemini-flash-latest", temperature=0.15, max_tokens=500)
+        # Stage 2 Auditor: prioritize Google Gemini Flash (3.5) for huge context and fast audit
+        audit_res = self.llm_chain.complete_google_gemma(audit_msgs, model="gemini-3.5-flash", temperature=0.15, max_tokens=500)
         if not audit_res:
-            audit_res = self.llm_chain.complete_groq(audit_msgs, model="groq/compound", temperature=0.15, max_tokens=500)
+            audit_res = self.llm_chain.complete_groq(audit_msgs, model="qwen/qwen3.8-27b", temperature=0.15, max_tokens=500)
         if not audit_res:
             audit_res = self.llm_chain.complete_openrouter(audit_msgs, model="meta-llama/llama-3.3-70b-instruct:free", temperature=0.15, max_tokens=500)
         if not audit_res:
@@ -1062,12 +1064,12 @@ class SatsangCouncil:
         ]
 
         # Stage 3 Chairman Synthesis Priority:
-        # 1. Google Gemma / Gemini Flash (1M context, beautiful Hindi, fast)
-        # 2. Groq (Llama-3.3-70b-versatile / compound)
+        # 1. Google Gemini 3.5 Flash (1M context, beautiful Hindi, fast)
+        # 2. Groq (Qwen 3.8 27B / GPT-OSS 20B)
         # 3. OpenRouter (Meta Llama 3.3 70B / Minimax)
-        chairman_res = self.llm_chain.complete_google_gemma(chairman_msgs, model="gemini-flash-latest", temperature=0.18, max_tokens=2200)
+        chairman_res = self.llm_chain.complete_google_gemma(chairman_msgs, model="gemini-3.5-flash", temperature=0.18, max_tokens=2200)
         if not chairman_res:
-            chairman_res = self.llm_chain.complete_groq(chairman_msgs, model="groq/compound", temperature=0.18, max_tokens=2200)
+            chairman_res = self.llm_chain.complete_groq(chairman_msgs, model="qwen/qwen3.8-27b", temperature=0.18, max_tokens=950)
         if not chairman_res:
             chairman_res = self.llm_chain.complete_openrouter(chairman_msgs, model="meta-llama/llama-3.3-70b-instruct:free", temperature=0.18, max_tokens=2200)
         if not chairman_res:
