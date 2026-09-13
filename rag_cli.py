@@ -16,9 +16,7 @@ if sys.platform == "win32":
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.markdown import Markdown
 
-from config import settings
 from rag_engine import RAGEngine
 from indexer import normalize_hinglish_to_devanagari
 from schema import ChatMessage, ChatRequest, ChatRole, SourceChannel

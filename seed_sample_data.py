@@ -197,7 +197,7 @@ def seed_database():
     # Embed active canonical chunks
     texts = [c.clean_text for c in canonical_chunks]
     embeddings = embedding_gen.embed_texts(texts)
-    for c, emb in zip(canonical_chunks, embeddings):
+    for c, emb in zip(canonical_chunks, embeddings, strict=False):
         c.embedding = emb
 
     # If using Supabase, ensure video records exist to satisfy foreign key constraints

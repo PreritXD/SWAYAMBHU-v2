@@ -6,12 +6,10 @@ for new satsang uploads published since the last sync. Ingests only new videos,
 runs deduplication, and records sync status into the sync_status table.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 import json
 import logging
 import os
-import sys
-from typing import Dict, List, Optional
 
 from config import SUPPORTED_CHANNELS, settings
 from ingest import MultiChannelIngestionPipeline
@@ -23,25 +21,25 @@ logger = logging.getLogger("swayambhu.sync_new_videos")
 LOCAL_SYNC_STATE_FILE = "./data/sync_state.json"
 
 
-def load_local_sync_state() -> Dict[str, str]:
+def load_local_sync_state() -> dict[str, str]:
     """Loads timestamps of last sync per channel from local disk."""
     if os.path.exists(LOCAL_SYNC_STATE_FILE):
         try:
-            with open(LOCAL_SYNC_STATE_FILE, "r", encoding="utf-8") as f:
+            with open(LOCAL_SYNC_STATE_FILE, encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
     return {}
 
 
-def save_local_sync_state(state: Dict[str, str]):
+def save_local_sync_state(state: dict[str, str]):
     """Saves timestamps of last sync per channel to local disk."""
     os.makedirs(os.path.dirname(LOCAL_SYNC_STATE_FILE), exist_ok=True)
     with open(LOCAL_SYNC_STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
 
 
-def get_last_synced_at(channel_key: str) -> Optional[datetime]:
+def get_last_synced_at(channel_key: str) -> datetime | None:
     """Fetches last_synced_at from Supabase or local state file."""
     if settings.supabase_url and settings.supabase_service_role_key:
         try:
@@ -58,9 +56,9 @@ def get_last_synced_at(channel_key: str) -> Optional[datetime]:
     return datetime.fromisoformat(raw) if raw else None
 
 
-def update_sync_record(channel_key: str, status: str, videos_found: int, videos_ingested: int, error: Optional[str] = None):
+def update_sync_record(channel_key: str, status: str, videos_found: int, videos_ingested: int, error: str | None = None):
     """Updates sync status in Supabase or local state."""
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
 
     if settings.supabase_url and settings.supabase_service_role_key:
         try:
@@ -92,7 +90,7 @@ def run_sync():
     for channel_key, config in SUPPORTED_CHANNELS.items():
         logger.info(f"Checking {config.title} ({config.handles[0]})...")
         last_sync = get_last_synced_at(channel_key)
-        
+
         try:
             # Check latest 15 videos
             discovered = pipeline.fetch_channel_video_list(config.handles[0], max_videos=15)
@@ -101,7 +99,7 @@ def run_sync():
             for vid in discovered:
                 upload_d = vid.get("upload_date")
                 # If we have a last sync date, only take videos uploaded on/after that date
-                if last_sync and upload_d and datetime.combine(upload_d, datetime.min.time(), tzinfo=timezone.utc) < last_sync:
+                if last_sync and upload_d and datetime.combine(upload_d, datetime.min.time(), tzinfo=UTC) < last_sync:
                     continue
                 new_videos.append(vid)
 

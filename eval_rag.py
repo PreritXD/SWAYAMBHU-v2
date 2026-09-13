@@ -16,7 +16,6 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, List
 
 if sys.platform == "win32":
     import io
@@ -39,7 +38,7 @@ def run_evaluation(dataset_path: str, output_report_path: str = "eval_report.jso
     if not os.path.exists(dataset_path):
         raise FileNotFoundError(f"Dataset not found at {dataset_path}")
 
-    with open(dataset_path, "r", encoding="utf-8") as f:
+    with open(dataset_path, encoding="utf-8") as f:
         test_cases = json.load(f)
 
     console.print(Panel.fit(
@@ -49,7 +48,7 @@ def run_evaluation(dataset_path: str, output_report_path: str = "eval_report.jso
     ))
 
     engine = RAGEngine()
-    item_results: List[EvalItemResult] = []
+    item_results: list[EvalItemResult] = []
 
     in_domain_total = 0
     in_domain_hits = 0
@@ -128,7 +127,6 @@ def run_evaluation(dataset_path: str, output_report_path: str = "eval_report.jso
     fn_rate = (false_negatives / in_domain_total) if in_domain_total > 0 else 0.0
     fp_rate = (false_positives / off_domain_total) if off_domain_total > 0 else 0.0
 
-    total_channel_cits = bm_retrievals + sp_retrievals
     channel_balance = (bm_retrievals / sp_retrievals) if sp_retrievals > 0 else 1.0
     avg_latency = sum(total_latencies) / len(total_latencies) if total_latencies else 0.0
 

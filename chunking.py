@@ -8,7 +8,6 @@ artifacts, and accurately preserves start/end seconds and formatted timestamps.
 
 import re
 import unicodedata
-from typing import List, Tuple
 from schema import ChunkRecord, SourceChannel, TranscriptSegment
 
 
@@ -108,24 +107,24 @@ class SemanticSlidingWindowChunker:
 
     def chunk_segments(
         self,
-        segments: List[TranscriptSegment],
+        segments: list[TranscriptSegment],
         video_id: str,
         channel_id: SourceChannel,
-    ) -> List[ChunkRecord]:
+    ) -> list[ChunkRecord]:
         """
         Takes sorted TranscriptSegments and generates overlapping ChunkRecords.
         """
         if not segments:
             return []
 
-        chunks: List[ChunkRecord] = []
+        chunks: list[ChunkRecord] = []
         n = len(segments)
         start_idx = 0
         chunk_counter = 0
 
         while start_idx < n:
             current_start_sec = segments[start_idx].start
-            accumulated_segments: List[TranscriptSegment] = []
+            accumulated_segments: list[TranscriptSegment] = []
             current_end_sec = current_start_sec
 
             idx = start_idx

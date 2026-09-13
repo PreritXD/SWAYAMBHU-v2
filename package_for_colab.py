@@ -27,7 +27,7 @@ def create_package():
                 print(f"Added {filename} ({os.path.getsize(filename)} bytes)")
             else:
                 print(f"Warning: {filename} not found!")
-    
+
     print(f"\nSuccessfully created {OUTPUT_ZIP} ({os.path.getsize(OUTPUT_ZIP)} bytes)")
 
 if __name__ == "__main__":

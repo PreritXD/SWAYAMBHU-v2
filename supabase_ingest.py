@@ -6,14 +6,11 @@ bulk upserting of videos, transcript chunks, and vector embeddings.
 """
 
 import argparse
-import json
 import logging
-import os
 import sys
-from typing import Any, Dict, List, Optional
 
 from config import AppEnvironment, settings
-from schema import ChunkRecord, SourceChannel, VideoMetadata
+from schema import ChunkRecord, VideoMetadata
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("swayambhu.supabase_ingest")
@@ -39,7 +36,7 @@ class SupabaseIngestor:
         if not self.client:
             return False
         try:
-            resp = self.client.table("channels").select("id").limit(1).execute()
+            self.client.table("channels").select("id").limit(1).execute()
             logger.info("Successfully connected to Supabase PostgreSQL.")
             return True
         except Exception as e:
@@ -72,7 +69,7 @@ class SupabaseIngestor:
             logger.error(f"Error upserting video {video.video_id}: {e}")
             return False
 
-    def bulk_insert_chunks(self, chunks: List[ChunkRecord], batch_size: int = 50) -> int:
+    def bulk_insert_chunks(self, chunks: list[ChunkRecord], batch_size: int = 50) -> int:
         """Inserts transcript chunks with embeddings in batches."""
         if not self.client or not chunks:
             return 0

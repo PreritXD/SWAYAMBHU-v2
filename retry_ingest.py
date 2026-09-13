@@ -8,9 +8,7 @@ Retries transcription using the secondary fallback chain with exponential backof
 import argparse
 import logging
 import time
-from typing import List
 
-from config import settings
 from ingest import MultiChannelIngestionPipeline
 from schema import SourceChannel, VideoMetadata
 
@@ -18,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("swayambhu.retry_ingest")
 
 
-def retry_failed_videos(video_ids: List[str], max_retries: int = 3, base_backoff_sec: float = 2.0):
+def retry_failed_videos(video_ids: list[str], max_retries: int = 3, base_backoff_sec: float = 2.0):
     """
     Retries ingestion for a list of video IDs with exponential backoff.
     """

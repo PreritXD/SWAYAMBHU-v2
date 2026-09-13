@@ -9,12 +9,12 @@ Every model used is 100% free with zero per-query cost.
 import json
 import logging
 import os
-import sys
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+
+from dotenv import load_dotenv
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
 
 # Load .env if present
 load_dotenv()
@@ -35,7 +35,7 @@ class VectorStoreType(str, Enum):
 
 
 class ChannelConfig:
-    def __init__(self, key: str, title: str, handles: List[str], yt_channel_id: Optional[str] = None):
+    def __init__(self, key: str, title: str, handles: list[str], yt_channel_id: str | None = None):
         self.key = key
         self.title = title
         self.handles = handles
@@ -43,7 +43,7 @@ class ChannelConfig:
 
 
 # Source channels definition
-SUPPORTED_CHANNELS: Dict[str, ChannelConfig] = {
+SUPPORTED_CHANNELS: dict[str, ChannelConfig] = {
     "bhajan_marg": ChannelConfig(
         key="bhajan_marg",
         title="Bhajan Marg",
@@ -84,10 +84,10 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
     # Supabase / PostgreSQL Credentials
-    supabase_url: Optional[str] = Field(default=None, alias="SUPABASE_URL")
-    supabase_key: Optional[str] = Field(default=None, alias="SUPABASE_KEY")
-    supabase_service_role_key: Optional[str] = Field(default=None, alias="SUPABASE_SERVICE_ROLE_KEY")
-    database_url: Optional[str] = Field(default=None, alias="DATABASE_URL")
+    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
+    supabase_key: str | None = Field(default=None, alias="SUPABASE_KEY")
+    supabase_service_role_key: str | None = Field(default=None, alias="SUPABASE_SERVICE_ROLE_KEY")
+    database_url: str | None = Field(default=None, alias="DATABASE_URL")
 
     # Vector Store Backend
     vector_store_backend: VectorStoreType = Field(
@@ -101,14 +101,14 @@ class Settings(BaseSettings):
     )
 
     # LLM Providers (100% Free Tiers Only - Zero Per-Query Cost)
-    groq_api_key: Optional[str] = Field(default=None, alias="GROQ_API_KEY")
-    openrouter_api_key: Optional[str] = Field(default=None, alias="OPENROUTER_API_KEY")
-    gemini_api_key: Optional[str] = Field(default=None, alias="GEMINI_API_KEY")
-    google_api_key: Optional[str] = Field(default=None, alias="GOOGLE_API_KEY")
+    groq_api_key: str | None = Field(default=None, alias="GROQ_API_KEY")
+    openrouter_api_key: str | None = Field(default=None, alias="OPENROUTER_API_KEY")
+    gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
+    google_api_key: str | None = Field(default=None, alias="GOOGLE_API_KEY")
     ollama_base_url: str = Field(default="http://localhost:11434", alias="OLLAMA_BASE_URL")
 
     # Strict Ordered LLM Fallback Sequence
-    llm_provider_chain: List[str] = Field(
+    llm_provider_chain: list[str] = Field(
         default=["google_gemma", "openrouter_gemma", "groq", "openrouter_llama", "ollama"],
         alias="LLM_PROVIDER_CHAIN"
     )
@@ -151,7 +151,7 @@ class Settings(BaseSettings):
     whisper_device: str = Field(default="cpu", alias="WHISPER_DEVICE")
 
     # Rate Limiting & Redis
-    redis_url: Optional[str] = Field(default=None, alias="REDIS_URL")
+    redis_url: str | None = Field(default=None, alias="REDIS_URL")
     rate_limit_per_minute: int = Field(default=30, alias="RATE_LIMIT_PER_MINUTE")
     rate_limit_burst: int = Field(default=10, alias="RATE_LIMIT_BURST")
 
@@ -164,7 +164,7 @@ class Settings(BaseSettings):
 
     @field_validator("llm_provider_chain", mode="before")
     @classmethod
-    def parse_provider_chain(cls, v: Any) -> List[str]:
+    def parse_provider_chain(cls, v: Any) -> list[str]:
         if isinstance(v, str):
             try:
                 parsed = json.loads(v)

@@ -3,11 +3,8 @@ Tests for Cross-Channel Deduplication (Whole-Video & Chunk-Level) and Determinis
 """
 
 from datetime import date
-import pytest
 from dedup import (
     CrossChannelDeduplicator,
-    compute_jaccard_similarity,
-    get_character_ngrams,
     is_candidate_more_canonical,
 )
 from schema import ChunkRecord, SourceChannel, VideoMetadata

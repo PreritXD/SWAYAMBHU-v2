@@ -2,7 +2,6 @@
 Tests for Hinglish Detection, Transliteration, and Spiritual Domain Lexicon Preservation
 """
 
-import pytest
 from indexer import is_hinglish_query, normalize_hinglish_to_devanagari
 
 

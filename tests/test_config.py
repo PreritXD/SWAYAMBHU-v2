@@ -2,7 +2,6 @@
 Tests for SWAYAMBHU v2 Startup Configuration and Fail-Fast Enforcement
 """
 
-import os
 import pytest
 from config import AppEnvironment, Settings, VectorStoreType
 

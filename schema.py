@@ -7,9 +7,10 @@ FastAPI request/response contracts, citations, and evaluation records.
 
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
-from uuid import UUID, uuid4
-from pydantic import BaseModel, Field, HttpUrl
+from typing import Any
+from uuid import uuid4
+
+from pydantic import BaseModel, Field
 
 
 class SourceChannel(str, Enum):
@@ -22,7 +23,7 @@ class SourceChannel(str, Enum):
 class CrossChannelAlias(BaseModel):
     channel: SourceChannel
     video_id: str
-    video_title: Optional[str] = None
+    video_title: str | None = None
     timestamp_sec: int
     timestamp_formatted: str
 
@@ -31,7 +32,7 @@ class TranscriptSegment(BaseModel):
     text: str
     start: float
     duration: float
-    end: Optional[float] = None
+    end: float | None = None
 
     def model_post_init(self, __context: Any) -> None:
         if self.end is None:
@@ -43,15 +44,15 @@ class VideoMetadata(BaseModel):
     channel_id: SourceChannel
     title: str
     url: str
-    upload_date: Optional[date] = None
-    duration_seconds: Optional[int] = None
-    view_count: Optional[int] = None
-    description: Optional[str] = None
+    upload_date: date | None = None
+    duration_seconds: int | None = None
+    view_count: int | None = None
+    description: str | None = None
     transcript_language: str = "hi"
     transcription_model: str = "youtube_captions"
     is_duplicate: bool = False
-    canonical_video_id: Optional[str] = None
-    dedup_similarity_score: Optional[float] = None
+    canonical_video_id: str | None = None
+    dedup_similarity_score: float | None = None
 
 
 class ChunkRecord(BaseModel):
@@ -66,20 +67,20 @@ class ChunkRecord(BaseModel):
     raw_text: str
     clean_text: str
     token_count: int
-    embedding: Optional[List[float]] = None
+    embedding: list[float] | None = None
     embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     is_duplicate: bool = False
-    canonical_chunk_id: Optional[str] = None
-    canonical_video_id: Optional[str] = None
-    cross_channel_aliases: List[CrossChannelAlias] = Field(default_factory=list)
+    canonical_chunk_id: str | None = None
+    canonical_video_id: str | None = None
+    cross_channel_aliases: list[CrossChannelAlias] = Field(default_factory=list)
 
 
 class DedupMatch(BaseModel):
     is_duplicate: bool
     similarity_score: float
-    canonical_video_id: Optional[str] = None
-    canonical_channel_id: Optional[SourceChannel] = None
-    matched_chunk_id: Optional[str] = None
+    canonical_video_id: str | None = None
+    canonical_channel_id: SourceChannel | None = None
+    matched_chunk_id: str | None = None
     reason: str
 
 
@@ -87,7 +88,7 @@ class DedupResult(BaseModel):
     total_scanned: int
     duplicates_found: int
     canonical_records: int
-    details: List[Dict[str, Any]] = Field(default_factory=list)
+    details: list[dict[str, Any]] = Field(default_factory=list)
 
 
 # ============================================================================
@@ -107,10 +108,10 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(default="", min_length=1, max_length=2000, description="The user question in Hindi or Hinglish")
-    query: Optional[str] = Field(default=None, description="Alias for message")
-    history: List[ChatMessage] = Field(default_factory=list, description="Prior conversation history for context rewriting")
-    session_id: Optional[str] = Field(default=None, description="Optional session tracking ID")
-    channel_filter: Optional[SourceChannel] = Field(default=None, description="Optional filter to retrieve only from a specific channel")
+    query: str | None = Field(default=None, description="Alias for message")
+    history: list[ChatMessage] = Field(default_factory=list, description="Prior conversation history for context rewriting")
+    session_id: str | None = Field(default=None, description="Optional session tracking ID")
+    channel_filter: SourceChannel | None = Field(default=None, description="Optional filter to retrieve only from a specific channel")
     use_council: bool = Field(default=False, description="Enable 3-stage LLM Council deliberation for deep philosophical inquiries")
 
     @classmethod
@@ -133,7 +134,7 @@ class Citation(BaseModel):
     url: str                                    # e.g., https://youtu.be/xxx?t=75
     relevance_score: float
     excerpt: str                                # The verified transcript passage
-    cross_channel_aliases: List[CrossChannelAlias] = Field(default_factory=list)
+    cross_channel_aliases: list[CrossChannelAlias] = Field(default_factory=list)
 
 
 class ChatDisclaimer(BaseModel):
@@ -148,17 +149,17 @@ class ChatDisclaimer(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     is_grounded: bool
-    refusal_reason: Optional[str] = None
-    citations: List[Citation] = Field(default_factory=list)
+    refusal_reason: str | None = None
+    citations: list[Citation] = Field(default_factory=list)
     disclaimer: ChatDisclaimer = Field(default_factory=ChatDisclaimer)
-    normalized_query: Optional[str] = None
-    rewritten_query: Optional[str] = None
+    normalized_query: str | None = None
+    rewritten_query: str | None = None
     latency_ms: int
     model_used: str
-    llm_provider: Optional[str] = None
+    llm_provider: str | None = None
     use_council: bool = False
-    council_deliberation: Optional[Dict[str, Any]] = None
-    case_category: Optional[str] = None
+    council_deliberation: dict[str, Any] | None = None
+    case_category: str | None = None
 
 
 # ============================================================================
@@ -169,7 +170,7 @@ class FeedbackRequest(BaseModel):
     query: str
     answer: str
     flagged: bool
-    note: Optional[str] = None
+    note: str | None = None
 
 
 class FeedbackResponse(BaseModel):
@@ -190,7 +191,7 @@ class ChannelStats(BaseModel):
 class StatsResponse(BaseModel):
     total_videos: int
     total_chunks: int
-    channels: Dict[str, ChannelStats]
+    channels: dict[str, ChannelStats]
     total_queries: int
     total_feedback: int
 
@@ -211,11 +212,11 @@ class EvalTestCase(BaseModel):
     id: str
     question: str
     query_type: str                            # 'clean_hindi', 'messy_hinglish', 'pronoun_followup', 'off_domain'
-    expected_channel: Optional[SourceChannel] = None
+    expected_channel: SourceChannel | None = None
     expected_topic: str
-    expected_answer_contains: List[str] = Field(default_factory=list)
+    expected_answer_contains: list[str] = Field(default_factory=list)
     should_refuse: bool = False
-    context_history: List[ChatMessage] = Field(default_factory=list)
+    context_history: list[ChatMessage] = Field(default_factory=list)
 
 
 class EvalItemResult(BaseModel):
@@ -224,10 +225,10 @@ class EvalItemResult(BaseModel):
     query_type: str
     hit_rate: bool
     refusal_correct: bool
-    retrieved_channels: List[SourceChannel]
-    top_citation: Optional[str] = None
+    retrieved_channels: list[SourceChannel]
+    top_citation: str | None = None
     latency_ms: int
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class EvalRunReport(BaseModel):
@@ -240,4 +241,4 @@ class EvalRunReport(BaseModel):
     sadhan_path_retrieval_count: int
     channel_balance_ratio: float
     average_latency_ms: float
-    results: List[EvalItemResult]
+    results: list[EvalItemResult]

@@ -2,7 +2,6 @@
 Tests for Semantic Sliding-Window Chunker, Timestamp Preservation, and Transcript Cleaning
 """
 
-import pytest
 from chunking import SemanticSlidingWindowChunker, format_timestamp, normalize_transcript_text
 from schema import SourceChannel, TranscriptSegment
 

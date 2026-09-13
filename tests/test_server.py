@@ -5,7 +5,6 @@ Tests for FastAPI Server Endpoints, Rate Limiting, and API Contracts
 import pytest
 from fastapi.testclient import TestClient
 from server import app, InMemoryTokenBucket
-from config import settings
 
 
 @pytest.fixture

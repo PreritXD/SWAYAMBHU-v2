@@ -16,23 +16,21 @@ Pipeline:
 8. Telemetry Logging to query_logs.
 """
 
-import json
 import logging
 import os
 import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
 import httpx
 
-from config import AppEnvironment, settings
+from config import settings
 from indexer import (
     CrossEncoderReRanker,
     EmbeddingGenerator,
     get_vector_store,
-    is_hinglish_query,
-    maximal_marginal_relevance,
     normalize_hinglish_to_devanagari,
 )
 from schema import (
@@ -40,7 +38,6 @@ from schema import (
     ChatMessage,
     ChatRequest,
     ChatResponse,
-    ChatRole,
     Citation,
     CrossChannelAlias,
     SourceChannel,
@@ -103,7 +100,7 @@ COMPILED_JAILBREAK = re.compile("|".join(JAILBREAK_PATTERNS), re.IGNORECASE)
 COMPILED_OFF_TOPIC = re.compile("|".join(OFF_TOPIC_PATTERNS), re.IGNORECASE)
 
 
-def evaluate_fast_path_filter(query: str) -> Optional[str]:
+def evaluate_fast_path_filter(query: str) -> str | None:
     """
     Tier-1 Fast Filter (<1ms regex, 0 LLM cost).
     Returns refusal message if query matches jailbreak or obvious off-topic patterns.
@@ -151,7 +148,7 @@ def sanitize_answer(text: str) -> str:
     return cleaned
 
 
-CHANNEL_CITATION_MAP: Dict[str, str] = {
+CHANNEL_CITATION_MAP: dict[str, str] = {
     # Bhajan Marg
     "bhajan marg": "bhajan_marg",
     "bhajan_marg": "bhajan_marg",
@@ -190,7 +187,7 @@ CHANNEL_CITATION_MAP: Dict[str, str] = {
 }
 
 
-def parse_timestamp_to_seconds(ts: str) -> Optional[int]:
+def parse_timestamp_to_seconds(ts: str) -> int | None:
     """Convert mm:ss or hh:mm:ss string to total integer seconds."""
     if not ts:
         return None
@@ -212,7 +209,7 @@ def normalize_spacing_and_dashes(s: str) -> str:
     return s
 
 
-def linkify_citations(text: str, citations: List[Any]) -> str:
+def linkify_citations(text: str, citations: list[Any]) -> str:
     """
     Transforms plain text citations like:
       [Bhajan Marg • 22:14] or [भजन मार्ग • 22:14] or (Sadhan Path • 12:30) or **Bhajan Marg • 07:50-08:41**
@@ -223,7 +220,7 @@ def linkify_citations(text: str, citations: List[Any]) -> str:
     if not text or not citations:
         return text
 
-    def _make_link(inner_raw: str) -> Optional[str]:
+    def _make_link(inner_raw: str) -> str | None:
         inner_norm = normalize_spacing_and_dashes(inner_raw).strip()
         trailing_punct = ""
         if inner_norm.endswith((".", ",", ";", ":", "!")):
@@ -316,7 +313,7 @@ def linkify_citations(text: str, citations: List[Any]) -> str:
 # 2.5 Case-Based Situational Taxonomy & Spiritual Principle Expansion
 # ============================================================================
 
-CASE_BASED_TAXONOMY: Dict[str, Dict[str, Any]] = {
+CASE_BASED_TAXONOMY: dict[str, dict[str, Any]] = {
     "INTRUSIVE_THOUGHTS_SADHANA": {
         "title": "साधना में काम-वासना, क्रोध व मानसिक विक्षेप",
         "patterns": [
@@ -446,7 +443,7 @@ CASE_BASED_TAXONOMY: Dict[str, Dict[str, Any]] = {
 }
 
 
-def analyze_case_based_query(query: str) -> Optional[Dict[str, Any]]:
+def analyze_case_based_query(query: str) -> dict[str, Any] | None:
     """
     Identifies whether a query is situational/case-based.
     If matched, returns categorization, target spiritual principles, and expanded search query.
@@ -611,11 +608,11 @@ class LLMProviderChain:
 
     def complete_google_gemma(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         temperature: float = 0.2,
         max_tokens: int = 2048,
-    ) -> Optional[Tuple[str, str, str]]:
+    ) -> tuple[str, str, str] | None:
         """Call Google Gemma via Google AI Studio direct free tier."""
         g_key = self.gemini_api_key or self.google_api_key
         if not g_key:
@@ -675,11 +672,11 @@ class LLMProviderChain:
 
     def complete_groq(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         temperature: float = 0.2,
         max_tokens: int = 950,
-    ) -> Optional[Tuple[str, str, str]]:
+    ) -> tuple[str, str, str] | None:
         """Call Groq free tier with rate-limit resilient model fallback."""
         if not self.groq_api_key:
             return None
@@ -711,11 +708,11 @@ class LLMProviderChain:
 
     def complete_openrouter(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         temperature: float = 0.2,
         max_tokens: int = 1400,
-    ) -> Optional[Tuple[str, str, str]]:
+    ) -> tuple[str, str, str] | None:
         """Call OpenRouter free models with fallback on upstream 429."""
         if not self.openrouter_api_key:
             return None
@@ -764,10 +761,10 @@ class LLMProviderChain:
 
     def complete_ollama(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         temperature: float = 0.2,
         max_tokens: int = 1500,
-    ) -> Optional[Tuple[str, str, str]]:
+    ) -> tuple[str, str, str] | None:
         """Call local Ollama instance as zero-cost last resort."""
         try:
             with httpx.Client(timeout=50.0) as client:
@@ -789,7 +786,7 @@ class LLMProviderChain:
             logger.warning(f"Ollama local fallback failed: {e}")
         return None
 
-    def complete(self, messages: List[Dict[str, str]], temperature: float = 0.2) -> Tuple[str, str, str]:
+    def complete(self, messages: list[dict[str, str]], temperature: float = 0.2) -> tuple[str, str, str]:
         """
         Executes chat completion down the fallback chain in strict priority order.
         Returns (response_text, provider_name, model_name).
@@ -854,8 +851,8 @@ class SatsangCouncil:
         grounded_context: str,
         raw_query: str,
         system_prompt: str,
-        case_info: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[str, Dict[str, Any], str, str]:
+        case_info: dict[str, Any] | None = None,
+    ) -> tuple[str, dict[str, Any], str, str]:
         start_council = time.time()
 
         # -------------------------------------------------------------
@@ -882,7 +879,7 @@ class SatsangCouncil:
             },
         ]
 
-        def _fetch_member_opinion(cfg: Dict[str, Any]) -> Tuple[Dict[str, Any], Optional[Tuple[str, str, str]]]:
+        def _fetch_member_opinion(cfg: dict[str, Any]) -> tuple[dict[str, Any], tuple[str, str, str] | None]:
             role_desc = cfg["role_desc"]
             case_note = ""
             if case_info:
@@ -922,7 +919,7 @@ class SatsangCouncil:
                 res = self.llm_chain.complete(msgs, temperature=0.25)
             return cfg, res
 
-        stage1_opinions: List[Dict[str, Any]] = []
+        stage1_opinions: list[dict[str, Any]] = []
         with ThreadPoolExecutor(max_workers=3) as executor:
             future_to_cfg = {executor.submit(_fetch_member_opinion, cfg): cfg for cfg in member_configs}
             for future in as_completed(future_to_cfg):
@@ -972,8 +969,8 @@ class SatsangCouncil:
         audit_case_clause = ""
         if case_info:
             audit_case_clause = (
-                f"\n४. जांचें कि क्या किसी प्रारूप में आधुनिक सांसारिक परामर्श (थेरेपी, कोर्ट, कानूनी सलाह, झगड़ा) दिया गया है? "
-                f"यदि हां, तो उसे तुरंत निरस्त करें और केवल पूज्य महाराज जी के आध्यात्मिक विधान (प्रारब्ध, सहनशीलता, मौन, नाम जप) को स्वीकृत करें।"
+                "\n४. जांचें कि क्या किसी प्रारूप में आधुनिक सांसारिक परामर्श (थेरेपी, कोर्ट, कानूनी सलाह, झगड़ा) दिया गया है? "
+                "यदि हां, तो उसे तुरंत निरस्त करें और केवल पूज्य महाराज जी के आध्यात्मिक विधान (प्रारब्ध, सहनशीलता, मौन, नाम जप) को स्वीकृत करें।"
             )
 
         audit_prompt = (
@@ -1095,7 +1092,7 @@ class SatsangCouncil:
 
 def rewrite_multi_turn_query(
     user_query: str,
-    history: List[ChatMessage],
+    history: list[ChatMessage],
     llm_chain: LLMProviderChain
 ) -> str:
     """
@@ -1149,7 +1146,7 @@ class RAGEngine:
         self.reranker = CrossEncoderReRanker()
         self.council = SatsangCouncil(self.llm_chain)
 
-    def process_query(self, request: ChatRequest, client_ip: Optional[str] = None) -> ChatResponse:
+    def process_query(self, request: ChatRequest, client_ip: str | None = None) -> ChatResponse:
         start_time = time.time()
         raw_query = request.message.strip()
 
@@ -1201,8 +1198,8 @@ class RAGEngine:
             )
 
             # Reciprocal Rank Fusion (RRF) with 1.35x weight for spiritual discourse chunks
-            combined_chunks: Dict[str, Dict[str, Any]] = {}
-            rrf_scores: Dict[str, float] = {}
+            combined_chunks: dict[str, dict[str, Any]] = {}
+            rrf_scores: dict[str, float] = {}
             k_rrf = 60
 
             # 1. Literal search results (weight 1.0)
@@ -1248,8 +1245,8 @@ class RAGEngine:
 
         # Step 6: Multi-Satsang Cross-Video Diversity & MMR Re-Ranking
         # Cap chunks per single video to ensure we search the whole database across multiple satsangs
-        video_chunk_counts: Dict[str, int] = {}
-        diverse_candidate_pool: List[Dict[str, Any]] = []
+        video_chunk_counts: dict[str, int] = {}
+        diverse_candidate_pool: list[dict[str, Any]] = []
         for c in candidate_chunks:
             vid = c.get("video_id", "unknown")
             count = video_chunk_counts.get(vid, 0)
@@ -1271,7 +1268,7 @@ class RAGEngine:
         # Step 7: Build Grounded LLM Context Across All Channels
         from config import SUPPORTED_CHANNELS
         context_blocks = []
-        citations: List[Citation] = []
+        citations: list[Citation] = []
 
         for idx, chunk in enumerate(top_chunks):
             ch_raw = chunk.get("channel_id", "bhajan_marg")
@@ -1439,10 +1436,10 @@ class RAGEngine:
     def _log_query_telemetry(
         self,
         raw_query: str,
-        normalized_query: Optional[str],
-        rewritten_query: Optional[str],
-        client_ip: Optional[str],
-        citations: List[Citation],
+        normalized_query: str | None,
+        rewritten_query: str | None,
+        client_ip: str | None,
+        citations: list[Citation],
         latency_ms: int,
         llm_provider: str,
         llm_model: str,
@@ -1455,7 +1452,7 @@ class RAGEngine:
             "rewritten_query": rewritten_query,
             "ip_address": client_ip,
             "retrieved_chunk_ids": [c.video_id for c in citations],
-            "source_channels_retrieved": list(set(c.channel.value for c in citations)),
+            "source_channels_retrieved": list({c.channel.value for c in citations}),
             "rerank_scores": [c.relevance_score for c in citations],
             "latency_ms": latency_ms,
             "llm_provider": llm_provider,

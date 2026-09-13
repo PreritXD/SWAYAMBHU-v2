@@ -14,22 +14,20 @@ Deterministic Canonical Tie-Breaking:
 """
 
 from datetime import date
-import hashlib
 import logging
 import re
-from typing import Any, Dict, List, Optional, Set, Tuple
 from schema import ChunkRecord, CrossChannelAlias, DedupMatch, SourceChannel, VideoMetadata
 
 logger = logging.getLogger("swayambhu.dedup")
 
 # Channel priority order for tie-breaking
-CHANNEL_PRIORITY: Dict[SourceChannel, int] = {
+CHANNEL_PRIORITY: dict[SourceChannel, int] = {
     SourceChannel.BHAJAN_MARG: 1,  # Highest priority (primary archive)
     SourceChannel.SADHAN_PATH: 2,
 }
 
 
-def get_character_ngrams(text: str, n: int = 5) -> Set[str]:
+def get_character_ngrams(text: str, n: int = 5) -> set[str]:
     """Generates character n-grams for fast, robust lexical similarity in Hindi."""
     clean = re.sub(r"\s+", "", text)
     if len(clean) < n:
@@ -37,7 +35,7 @@ def get_character_ngrams(text: str, n: int = 5) -> Set[str]:
     return {clean[i:i + n] for i in range(len(clean) - n + 1)}
 
 
-def get_word_shingles(text: str, k: int = 3) -> Set[str]:
+def get_word_shingles(text: str, k: int = 3) -> set[str]:
     """Generates word k-shingles."""
     words = text.split()
     if len(words) < k:
@@ -45,7 +43,7 @@ def get_word_shingles(text: str, k: int = 3) -> Set[str]:
     return {" ".join(words[i:i + k]) for i in range(len(words) - k + 1)}
 
 
-def compute_jaccard_similarity(set_a: Set[str], set_b: Set[str]) -> float:
+def compute_jaccard_similarity(set_a: set[str], set_b: set[str]) -> float:
     """Computes standard Jaccard similarity coefficient |A ∩ B| / |A ∪ B|."""
     if not set_a or not set_b:
         return 0.0
@@ -55,10 +53,10 @@ def compute_jaccard_similarity(set_a: Set[str], set_b: Set[str]) -> float:
 
 
 def is_candidate_more_canonical(
-    cand_date: Optional[date],
+    cand_date: date | None,
     cand_channel: SourceChannel,
     cand_vid: str,
-    target_date: Optional[date],
+    target_date: date | None,
     target_channel: SourceChannel,
     target_vid: str,
 ) -> bool:
@@ -111,7 +109,7 @@ class CrossChannelDeduplicator:
         self,
         new_video: VideoMetadata,
         new_transcript: str,
-        catalog_videos: List[Tuple[VideoMetadata, str]],
+        catalog_videos: list[tuple[VideoMetadata, str]],
     ) -> DedupMatch:
         """
         Compares new_transcript against existing catalog (metadata, transcript).
@@ -130,7 +128,7 @@ class CrossChannelDeduplicator:
         new_words = set(new_transcript.split())
 
         best_score = 0.0
-        best_match_meta: Optional[VideoMetadata] = None
+        best_match_meta: VideoMetadata | None = None
 
         for existing_meta, existing_transcript in catalog_videos:
             if existing_meta.video_id == new_video.video_id:
@@ -195,9 +193,9 @@ class CrossChannelDeduplicator:
     def check_chunk_duplicate(
         self,
         new_chunk: ChunkRecord,
-        existing_chunks: List[ChunkRecord],
-        new_video_date: Optional[date] = None,
-        existing_video_dates: Optional[Dict[str, Optional[date]]] = None,
+        existing_chunks: list[ChunkRecord],
+        new_video_date: date | None = None,
+        existing_video_dates: dict[str, date | None] | None = None,
     ) -> DedupMatch:
         """
         Compares an individual chunk against existing chunks in the catalog.
@@ -211,7 +209,7 @@ class CrossChannelDeduplicator:
         new_words = set(new_chunk.clean_text.split())
 
         best_score = 0.0
-        best_chunk: Optional[ChunkRecord] = None
+        best_chunk: ChunkRecord | None = None
 
         for cand in existing_chunks:
             # Skip chunks from the exact same video
@@ -268,7 +266,7 @@ class CrossChannelDeduplicator:
         self,
         canonical_chunk: ChunkRecord,
         duplicate_chunk: ChunkRecord,
-        video_title: Optional[str] = None,
+        video_title: str | None = None,
     ) -> None:
         """
         Attaches duplicate chunk's channel and timestamp as an alias to the canonical chunk.

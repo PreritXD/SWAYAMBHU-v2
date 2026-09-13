@@ -10,19 +10,17 @@ Endpoints:
 Strictly JSON API layer. Zero HTML/CSS/JS.
 """
 
-from contextlib import asynccontextmanager
-from datetime import datetime, timezone
 import logging
 import os
 import time
-from typing import Dict, Optional, Tuple
+from contextlib import asynccontextmanager
+from datetime import datetime, UTC
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
-from config import AppEnvironment, settings
+from config import settings
 from rag_engine import RAGEngine
 from schema import (
     ChatRequest,
@@ -43,7 +41,7 @@ logger = logging.getLogger("swayambhu.server")
 
 class RateLimiterBackend:
     """Abstract interface for token bucket storage."""
-    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> Tuple[bool, int]:
+    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> tuple[bool, int]:
         raise NotImplementedError
 
 
@@ -51,9 +49,9 @@ class InMemoryTokenBucket(RateLimiterBackend):
     """In-memory token bucket implementation for single-process / dev."""
     def __init__(self):
         # client_id -> (tokens, last_refill_timestamp)
-        self.buckets: Dict[str, Tuple[float, float]] = {}
+        self.buckets: dict[str, tuple[float, float]] = {}
 
-    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> Tuple[bool, int]:
+    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> tuple[bool, int]:
         now = time.time()
         refill_rate = max_per_minute / 60.0  # tokens per second
 
@@ -82,7 +80,7 @@ class RedisTokenBucket(RateLimiterBackend):
         import redis
         self.redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
 
-    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> Tuple[bool, int]:
+    def is_allowed(self, client_id: str, max_per_minute: int, burst: int) -> tuple[bool, int]:
         # Sliding-window log implementation in Redis
         key = f"rate_limit:{client_id}"
         now_ms = int(time.time() * 1000)
@@ -145,7 +143,7 @@ def check_rate_limit(request: Request):
 # Application Lifecycle & Instantiation
 # ============================================================================
 
-rag_engine: Optional[RAGEngine] = None
+rag_engine: RAGEngine | None = None
 
 
 @asynccontextmanager
@@ -266,7 +264,7 @@ def stats_endpoint() -> StatsResponse:
     total_chunks = 0
     total_videos = 0
 
-    for ch_key in SUPPORTED_CHANNELS.keys():
+    for ch_key in SUPPORTED_CHANNELS:
         try:
             ch_enum = SourceChannel(ch_key)
             c_count = vs.count_chunks(ch_enum)
@@ -317,7 +315,7 @@ async def health_endpoint() -> HealthResponse:
         app_env=settings.app_env.value,
         vector_store=settings.vector_store_backend.value,
         llm_provider=llm_info,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 

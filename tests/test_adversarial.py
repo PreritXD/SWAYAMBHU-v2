@@ -2,8 +2,7 @@
 Tests for Tier-1 Fast Deterministic Adversarial & Off-Topic Security Filter (<1ms regex)
 """
 
-import pytest
-from rag_engine import evaluate_fast_path_filter, REVERENT_REFUSAL_OFF_TOPIC
+from rag_engine import evaluate_fast_path_filter
 
 
 def test_jailbreak_detection():

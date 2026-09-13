@@ -8,13 +8,14 @@ and embeds into the vector store.
 """
 
 import argparse
+import contextlib
 from datetime import datetime, date
 import logging
 import os
+import re
 import subprocess
-import sys
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from config import SUPPORTED_CHANNELS, settings
 from chunking import SemanticSlidingWindowChunker
@@ -38,15 +39,15 @@ class MultiChannelIngestionPipeline:
         self.embedding_gen = EmbeddingGenerator()
         self.vector_store = get_vector_store()
         # In-memory catalogs for deduplication (hydrated from DB or local store)
-        self.video_catalog: List[Tuple[VideoMetadata, str]] = []
-        self.chunk_catalog: List[ChunkRecord] = []
-        self.video_dates: Dict[str, Optional[date]] = {}
+        self.video_catalog: list[tuple[VideoMetadata, str]] = []
+        self.chunk_catalog: list[ChunkRecord] = []
+        self.video_dates: dict[str, date | None] = {}
 
     def discover_channel_playlists(
         self,
         channel_handle: str,
         max_playlists: int = 150,
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """Discovers public playlists on a channel."""
         logger.info(f"Discovering playlists on channel {channel_handle}...")
         channel_url = f"https://www.youtube.com/{channel_handle}/playlists"
@@ -81,7 +82,7 @@ class MultiChannelIngestionPipeline:
         label: str,
         max_videos: int = 50,
         start_index: int = 1,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Discovers videos from a URL (channel or playlist) using yt-dlp flat extraction."""
         logger.info(f"Scanning {label} (from #{start_index} up to #{start_index + max_videos - 1})...")
         cmd = [
@@ -93,7 +94,7 @@ class MultiChannelIngestionPipeline:
             target_url
         ]
 
-        videos: List[Dict[str, Any]] = []
+        videos: list[dict[str, Any]] = []
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True)
             for line in result.stdout.strip().split("\n"):
@@ -108,10 +109,8 @@ class MultiChannelIngestionPipeline:
 
                 upload_d = None
                 if raw_date and len(raw_date) == 8:
-                    try:
+                    with contextlib.suppress(ValueError):
                         upload_d = datetime.strptime(raw_date, "%Y%m%d").date()
-                    except ValueError:
-                        pass
 
                 videos.append({
                     "video_id": vid_id,
@@ -132,7 +131,7 @@ class MultiChannelIngestionPipeline:
         channel_handle: str,
         max_videos: int = 50,
         start_index: int = 1,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Discovers videos using yt-dlp flat extraction on channel's main uploads feed."""
         channel_url = f"https://www.youtube.com/{channel_handle}/videos"
         return self.fetch_video_list(
@@ -147,7 +146,7 @@ class MultiChannelIngestionPipeline:
         playlist_ref: str,
         max_videos: int = 50,
         start_index: int = 1,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Discovers videos using yt-dlp flat extraction from a specific playlist."""
         playlist_url = playlist_ref if playlist_ref.startswith("http") else f"https://www.youtube.com/playlist?list={playlist_ref}"
         return self.fetch_video_list(
@@ -157,7 +156,7 @@ class MultiChannelIngestionPipeline:
             start_index=start_index,
         )
 
-    def extract_transcript(self, video_id: str) -> Tuple[List[TranscriptSegment], str, str]:
+    def extract_transcript(self, video_id: str) -> tuple[list[TranscriptSegment], str, str]:
         """
         Extracts transcript using strict 5-tier fallback chain:
         1. youtube-transcript-api (Priority 1: free, instant, perfect timestamps -> 'youtube_captions')
@@ -254,7 +253,7 @@ class MultiChannelIngestionPipeline:
             logger.debug(f"yt-dlp audio download failed for {video_id}: {e}")
             return False
 
-    def _transcribe_with_groq(self, audio_path: str, model: str) -> Tuple[List[TranscriptSegment], str]:
+    def _transcribe_with_groq(self, audio_path: str, model: str) -> tuple[list[TranscriptSegment], str]:
         """Transcribes audio using Groq Cloud free-tier Whisper endpoint."""
         from groq import Groq
         groq_client = Groq(api_key=settings.groq_api_key)
@@ -282,7 +281,7 @@ class MultiChannelIngestionPipeline:
         full_text = getattr(transcription, "text", "")
         return segments, full_text
 
-    def _transcribe_with_faster_whisper(self, audio_path: str, video_id: str) -> Tuple[List[TranscriptSegment], str, str]:
+    def _transcribe_with_faster_whisper(self, audio_path: str, video_id: str) -> tuple[list[TranscriptSegment], str, str]:
         """
         Local faster-whisper transcription:
         - Tier 4: GPU detected -> large-v3 ('faster-whisper/large-v3')
@@ -340,10 +339,10 @@ class MultiChannelIngestionPipeline:
     def process_video(
         self,
         video_meta: VideoMetadata,
-        segments: List[TranscriptSegment],
+        segments: list[TranscriptSegment],
         full_transcript: str,
-        transcription_model: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        transcription_model: str | None = None,
+    ) -> dict[str, Any]:
         """
         Executes deduplication, chunking, embedding, and indexing for a single video.
         """
@@ -385,7 +384,7 @@ class MultiChannelIngestionPipeline:
         )
 
         # 3. Chunk-Level Deduplication Check (catches re-cuts and partial overlap)
-        active_chunks: List[ChunkRecord] = []
+        active_chunks: list[ChunkRecord] = []
         for chunk in chunks:
             chunk_dedup_match = self.deduplicator.check_chunk_duplicate(
                 new_chunk=chunk,
@@ -416,7 +415,7 @@ class MultiChannelIngestionPipeline:
         if active_chunks:
             texts_to_embed = [c.clean_text for c in active_chunks]
             embeddings = self.embedding_gen.embed_texts(texts_to_embed)
-            for c, emb in zip(active_chunks, embeddings):
+            for c, emb in zip(active_chunks, embeddings, strict=False):
                 c.embedding = emb
 
             # 5. Insert into Vector Store
@@ -459,9 +458,9 @@ class MultiChannelIngestionPipeline:
         self,
         channel_key: str,
         max_videos: int = 10,
-        playlist: Optional[str] = None,
+        playlist: str | None = None,
         force: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Ingests new videos from a specific channel handle or playlist.
         Automatically checks the database and jumps past already-ingested videos.
@@ -614,11 +613,11 @@ class MultiChannelIngestionPipeline:
 
     def ingest_channels_round_robin(
         self,
-        channels: List[str],
+        channels: list[str],
         max_videos_per_channel: int = 0,
         batch_size: int = 10,
         force: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Ingests videos from multiple channels in an interleaved round-robin fashion.
         Prevents any single large channel (e.g. Bhajan Marg) from monopolizing the
@@ -773,20 +772,14 @@ def main():
                     elif "bhajan" in ch_name:
                         detected_channel = SourceChannel.BHAJAN_MARG
                 if len(parts) > 2 and parts[2] and parts[2] != "NA" and len(parts[2]) == 8:
-                    try:
+                    with contextlib.suppress(Exception):
                         upload_date = datetime.strptime(parts[2], "%Y%m%d").date()
-                    except Exception:
-                        pass
                 if len(parts) > 3 and parts[3] and parts[3] != "NA":
-                    try:
+                    with contextlib.suppress(Exception):
                         duration_seconds = int(parts[3])
-                    except Exception:
-                        pass
                 if len(parts) > 4 and parts[4] and parts[4] != "NA":
-                    try:
+                    with contextlib.suppress(Exception):
                         view_count = int(parts[4])
-                    except Exception:
-                        pass
         except Exception as e:
             logger.warning(f"Could not fetch full metadata via yt-dlp: {e}. Using fallback defaults.")
 

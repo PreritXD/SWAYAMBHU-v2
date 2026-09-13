@@ -19,13 +19,10 @@ Instructions for Google Colab:
 """
 
 import argparse
-from datetime import datetime
 import logging
 import os
 import subprocess
-import sys
 import tempfile
-from typing import List, Optional
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("swayambhu.colab_ingest")
@@ -50,7 +47,7 @@ def run_colab_transcription(
     video_id: str,
     whisper_model: str = "large-v3",
     use_gpu: bool = True
-) -> tuple[List[dict], str]:
+) -> tuple[list[dict], str]:
     """
     Downloads audio using yt-dlp and runs faster-whisper on GPU.
     Defaults to large-v3 on GPU for high Hindi accuracy; medium on CPU.
@@ -118,7 +115,8 @@ def main():
     pipeline = MultiChannelIngestionPipeline()
 
     if args.video_id:
-        import re, subprocess
+        import re
+        import subprocess
         from schema import VideoMetadata, SourceChannel
         raw_id = args.video_id.strip()
         match = re.search(r"(?:v=|\/|youtu\.be\/)([0-9A-Za-z_-]{11})", raw_id)
@@ -138,13 +136,18 @@ def main():
             line = yt_res.stdout.strip()
             if line and "\t" in line:
                 p = line.split("\t")
-                if p[0]: title = p[0]
+                if p[0]:
+                    title = p[0]
                 if len(p) > 1 and p[1] and (not args.channel or args.channel == "all"):
                     ch_name = p[1].lower()
-                    if "sadhan" in ch_name: detected_channel = SourceChannel.SADHAN_PATH
-                    elif "ras" in ch_name: detected_channel = SourceChannel.VRINDAVAN_RAS
-                    elif "radha kripa" in ch_name: detected_channel = SourceChannel.SHRI_HIT_RADHA_KRIPA
-                    elif "bhajan" in ch_name: detected_channel = SourceChannel.BHAJAN_MARG
+                    if "sadhan" in ch_name:
+                        detected_channel = SourceChannel.SADHAN_PATH
+                    elif "ras" in ch_name:
+                        detected_channel = SourceChannel.VRINDAVAN_RAS
+                    elif "radha kripa" in ch_name:
+                        detected_channel = SourceChannel.SHRI_HIT_RADHA_KRIPA
+                    elif "bhajan" in ch_name:
+                        detected_channel = SourceChannel.BHAJAN_MARG
         except Exception:
             pass
 

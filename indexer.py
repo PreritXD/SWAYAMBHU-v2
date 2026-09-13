@@ -11,15 +11,16 @@ Provides:
 4. Maximal Marginal Relevance (MMR) diversity re-ranking to prevent redundant cross-channel chunks.
 """
 
-from abc import ABC, abstractmethod
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from abc import ABC, abstractmethod
+from typing import Any
+
 import numpy as np
 
 from config import AppEnvironment, VectorStoreType, settings
-from schema import ChunkRecord, Citation, CrossChannelAlias, SourceChannel
+from schema import ChunkRecord, SourceChannel
 
 logger = logging.getLogger("swayambhu.indexer")
 
@@ -29,7 +30,7 @@ logger = logging.getLogger("swayambhu.indexer")
 
 # Exact spiritual domain terminology mapping
 # Preserves theological integrity without secularization
-SPIRITUAL_LEXICON: Dict[str, str] = {
+SPIRITUAL_LEXICON: dict[str, str] = {
     # Core sacred terms requested by prompt
     "naam aparadh": "नाम अपराध",
     "naam apradh": "नाम अपराध",
@@ -86,7 +87,7 @@ SPIRITUAL_LEXICON: Dict[str, str] = {
 }
 
 # Common colloquial Hindi phrases and question words in Hinglish
-COLLOQUIAL_PATTERNS: List[Tuple[str, str]] = [
+COLLOQUIAL_PATTERNS: list[tuple[str, str]] = [
     (r"\bkaise kare[n]?\b", "कैसे करें"),
     (r"\bkyu[n]?\b", "क्यों"),
     (r"\bkyon\b", "क्यों"),
@@ -192,7 +193,7 @@ def normalize_hinglish_to_devanagari(text: str) -> str:
     # Stage 3: Phonetic transliteration for remaining Latin tokens
     try:
         from indic_transliteration import sanscript
-        from indic_transliteration.sanscript import SchemeMap, SCHEMES, transliterate
+        from indic_transliteration.sanscript import transliterate
 
         # Pre-normalize typical informal spelling quirks before sanscript
         def clean_latin_token(tok: str) -> str:
@@ -236,12 +237,12 @@ def normalize_hinglish_to_devanagari(text: str) -> str:
 class EmbeddingGenerator:
     """Generates 384-dimensional embeddings using paraphrase-multilingual-MiniLM-L12-v2."""
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(self, model_name: str | None = None):
         self.model_name = model_name or settings.embedding_model_name
         self._model = None
         self._hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
 
-    def _embed_via_hf_api(self, texts: List[str]) -> Optional[List[List[float]]]:
+    def _embed_via_hf_api(self, texts: list[str]) -> list[list[float]] | None:
         token = getattr(self, "_hf_token", None) or os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_API_KEY")
         if not token:
             return None
@@ -325,7 +326,7 @@ class EmbeddingGenerator:
                 logger.warning(f"SentenceTransformer not loaded directly ({e}). Using fallback embedding generation.")
                 self._model = "fallback"
 
-    def embed_texts(self, texts: List[str]) -> List[List[float]]:
+    def embed_texts(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
         self._load_model()
@@ -371,7 +372,7 @@ class EmbeddingGenerator:
                 results.append(vec)
             return results
 
-    def embed_query(self, query: str) -> List[float]:
+    def embed_query(self, query: str) -> list[float]:
         results = self.embed_texts([query])
         return results[0] if results else [0.0] * settings.embedding_dim
 
@@ -384,28 +385,28 @@ class BaseVectorStore(ABC):
     """Abstract Vector Store Interface."""
 
     @abstractmethod
-    def insert_chunks(self, chunks: List[ChunkRecord]) -> int:
+    def insert_chunks(self, chunks: list[ChunkRecord]) -> int:
         pass
 
     @abstractmethod
     def search_similar(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         top_k: int = 8,
         min_similarity: float = 0.35,
-        channel_filter: Optional[SourceChannel] = None,
-    ) -> List[Dict[str, Any]]:
+        channel_filter: SourceChannel | None = None,
+    ) -> list[dict[str, Any]]:
         pass
 
     @abstractmethod
-    def count_chunks(self, channel_filter: Optional[SourceChannel] = None) -> int:
+    def count_chunks(self, channel_filter: SourceChannel | None = None) -> int:
         pass
 
 
 class ChromaVectorStore(BaseVectorStore):
     """ChromaDB local vector store fallback."""
 
-    def __init__(self, persist_dir: Optional[str] = None):
+    def __init__(self, persist_dir: str | None = None):
         self.persist_dir = persist_dir or settings.chroma_persist_dir
         os.makedirs(self.persist_dir, exist_ok=True)
         self._client = None
@@ -420,7 +421,7 @@ class ChromaVectorStore(BaseVectorStore):
                 metadata={"hnsw:space": "cosine"}
             )
 
-    def insert_chunks(self, chunks: List[ChunkRecord]) -> int:
+    def insert_chunks(self, chunks: list[ChunkRecord]) -> int:
         if not chunks:
             return 0
         self._init_db()
@@ -454,14 +455,14 @@ class ChromaVectorStore(BaseVectorStore):
 
     def search_similar(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         top_k: int = 8,
         min_similarity: float = 0.35,
-        channel_filter: Optional[SourceChannel] = None,
-    ) -> List[Dict[str, Any]]:
+        channel_filter: SourceChannel | None = None,
+    ) -> list[dict[str, Any]]:
         self._init_db()
 
-        where_clause: Dict[str, Any] = {"is_duplicate": False}
+        where_clause: dict[str, Any] = {"is_duplicate": False}
         if channel_filter:
             where_clause = {
                 "$and": [
@@ -481,7 +482,7 @@ class ChromaVectorStore(BaseVectorStore):
             include=["documents", "metadatas", "distances", "embeddings"]
         )
 
-        matched_chunks: List[Dict[str, Any]] = []
+        matched_chunks: list[dict[str, Any]] = []
         if not results or not results["ids"] or not results["ids"][0]:
             return []
 
@@ -507,7 +508,7 @@ class ChromaVectorStore(BaseVectorStore):
 
         return matched_chunks
 
-    def count_chunks(self, channel_filter: Optional[SourceChannel] = None) -> int:
+    def count_chunks(self, channel_filter: SourceChannel | None = None) -> int:
         self._init_db()
         if channel_filter:
             res = self._collection.get(where={"channel_id": channel_filter.value})
@@ -519,14 +520,14 @@ class SupabaseVectorStore(BaseVectorStore):
     """Supabase pgvector store utilizing match_transcript_chunks RPC."""
 
     def __init__(self):
-        from supabase import create_client, Client
+        from supabase import Client, create_client
         url = settings.supabase_url
         key = settings.supabase_service_role_key or settings.supabase_key
         if not url or not key:
             raise ValueError("Supabase URL and Key must be provided for SupabaseVectorStore.")
         self.client: Client = create_client(url, key)
 
-    def insert_chunks(self, chunks: List[ChunkRecord]) -> int:
+    def insert_chunks(self, chunks: list[ChunkRecord]) -> int:
         if not chunks:
             return 0
 
@@ -580,11 +581,11 @@ class SupabaseVectorStore(BaseVectorStore):
 
     def search_similar(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         top_k: int = 8,
         min_similarity: float = 0.35,
-        channel_filter: Optional[SourceChannel] = None,
-    ) -> List[Dict[str, Any]]:
+        channel_filter: SourceChannel | None = None,
+    ) -> list[dict[str, Any]]:
         params = {
             "query_embedding": query_embedding,
             "match_threshold": min_similarity,
@@ -595,7 +596,7 @@ class SupabaseVectorStore(BaseVectorStore):
         rpc_resp = self.client.rpc("match_transcript_chunks", params).execute()
         return rpc_resp.data or []
 
-    def count_chunks(self, channel_filter: Optional[SourceChannel] = None) -> int:
+    def count_chunks(self, channel_filter: SourceChannel | None = None) -> int:
         query = self.client.table("transcript_chunks").select("id", count="exact")
         if channel_filter:
             query = query.eq("channel_id", channel_filter.value)
@@ -623,10 +624,10 @@ def get_vector_store() -> BaseVectorStore:
 def maximal_marginal_relevance(
     query_vector: np.ndarray,
     candidate_vectors: np.ndarray,
-    candidate_chunks: List[Dict[str, Any]],
+    candidate_chunks: list[dict[str, Any]],
     top_k: int = 4,
     diversity_lambda: float = 0.7,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Re-ranks candidate chunks using Maximal Marginal Relevance (MMR) to avoid
     retrieving near-duplicate chunks from the same or different channels.
@@ -647,8 +648,8 @@ def maximal_marginal_relevance(
     # Initial query-chunk similarities
     sim_to_query = np.dot(cand_normed, query_vector)
 
-    selected_indices: List[int] = []
-    unselected_indices: List[int] = list(range(len(candidate_chunks)))
+    selected_indices: list[int] = []
+    unselected_indices: list[int] = list(range(len(candidate_chunks)))
 
     for _ in range(min(top_k, len(candidate_chunks))):
         best_score = -float("inf")
@@ -693,7 +694,7 @@ class CrossEncoderReRanker:
     Free, runs locally, zero API calls.
     """
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(self, model_name: str | None = None):
         self.model_name = model_name or settings.rerank_model_name
         self._model = None
 
@@ -718,9 +719,9 @@ class CrossEncoderReRanker:
     def rerank(
         self,
         query: str,
-        candidate_chunks: List[Dict[str, Any]],
+        candidate_chunks: list[dict[str, Any]],
         top_k: int = 4,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Re-ranks candidate chunks for a query using cross-encoder scores.
         """
@@ -767,9 +768,9 @@ class CrossEncoderReRanker:
 
 def cross_encoder_rerank(
     query: str,
-    candidate_chunks: List[Dict[str, Any]],
+    candidate_chunks: list[dict[str, Any]],
     top_k: int = 4
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Helper function to run cross-encoder re-ranking."""
     reranker = CrossEncoderReRanker()
     return reranker.rerank(query=query, candidate_chunks=candidate_chunks, top_k=top_k)

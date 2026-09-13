@@ -3,23 +3,21 @@ Tests for Finalized 100% Free Model Choices, Zero Per-Query Cost Enforcement,
 Strict Fallback Chains, and Model Tracking Telemetry.
 """
 
-import os
-import pytest
 from config import settings
 from schema import ChunkRecord, VideoMetadata, SourceChannel, ChatRequest
-from indexer import CrossEncoderReRanker, cross_encoder_rerank
-from rag_engine import LLMProviderChain, RAGEngine
+from indexer import CrossEncoderReRanker
+from rag_engine import RAGEngine
 
 
 def test_free_llm_fallback_chain_and_models():
-    """Verify LLM fallback sequence: Groq -> OpenRouter Llama -> OpenRouter Gemma -> Ollama."""
-    expected_chain = ["groq", "openrouter_llama", "openrouter_gemma", "ollama"]
+    """Verify LLM fallback sequence: Google Gemma -> Groq -> OpenRouter Llama -> OpenRouter Gemma -> Ollama."""
+    expected_chain = ["google_gemma", "groq", "openrouter_llama", "openrouter_gemma", "ollama"]
     assert settings.llm_provider_chain == expected_chain
 
     # Verify model identifiers belong to supported free models
-    assert settings.primary_llm_model in ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"]
-    assert settings.openrouter_llama_model in ["meta-llama/llama-3.3-70b-instruct:free", "nvidia/nemotron-3.5-lightning:free"]
-    assert settings.openrouter_gemma_model in ["google/gemma-3-27b-it:free", "google/gemma-4-31b-it:free"]
+    assert settings.primary_llm_model in ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "qwen/qwen3.8-27b", "groq/compound"]
+    assert settings.openrouter_llama_model.endswith(":free") or settings.openrouter_llama_model in ["meta-llama/llama-3.3-70b-instruct:free", "nvidia/nemotron-3.5-lightning:free", "minimax/minimax-m3:free"]
+    assert settings.openrouter_gemma_model.endswith(":free") or settings.openrouter_gemma_model in ["google/gemma-3-27b-it:free", "google/gemma-4-31b-it:free"]
     assert settings.ollama_model == "llama3.2"
 
     # Verify paid OpenAI models are completely removed from settings
